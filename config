@@ -1,0 +1,58 @@
+(in-package #:stumpwm-user)
+
+;; Custom package, to now "interfere" with stumpwm's package.
+(defpackage #:stumpwmrc
+  (:use #:cl #:stumpwm))
+
+;; Prefix key
+(set-prefix-key (kbd "Menu"))
+
+;; dmenu
+(defcommand dmenu-run () ()
+  (run-commands "exec bash -i -c dmenu_run"))
+(define-key *top-map* (kbd "C-Menu") "dmenu-run")
+
+;; Applications
+(defvar *app-root-map* (make-sparse-keymap))
+(define-key *top-map* (kbd "S-Menu") *app-root-map*)
+
+(defun load-config (name)
+  (load (merge-pathnames (cat name ".lisp") *load-pathname*)))
+
+(defun load-config* (&rest names)
+  (mapcar #'load-config names))
+
+(load-config* "utils"
+              "defapplication")
+
+;; Commonly used applications
+(defapplication firefox :bind (:root "w"))
+(defapplication firefox :newp t :bind (:root "W"))
+(defapplication emacs :newp t :bind (:root "E"))
+(defapplication termite :class "Termite" :bind (:root "c"))
+
+;; Screen Lock
+(defcommand lock () ()
+  (run-commands "exec xlock"))
+(define-key *top-map* (kbd "s-l") "lock")
+
+;; Suspend
+(defcommand suspend (confirmed-p)
+  ((:y-or-n "About to suspend (without locking). U sure? "))
+  (when confirmed-p
+    (run-commands "exec systemctl suspend")))
+
+;; Lock & Suspend
+(defcommand lock-suspend (confirmed-p)
+  ((:y-or-n "About to suspend (and lock). U sure? "))
+  (when confirmed-p
+    (run-commands
+     "lock"
+     "exec systemctl suspend")))
+
+;; Shutdown
+(defcommand shutdown (confirmed-p)
+  ((:y-or-n "About to shutdown. U sure? "))
+  (when confirmed-p
+    (run-commands "exec systemctl poweroff")))
+

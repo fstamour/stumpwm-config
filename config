@@ -17,7 +17,7 @@
 (define-key *top-map* (kbd "S-Menu") *app-root-map*)
 
 (defun load-config (name)
-  (load (merge-pathnames (cat name ".lisp") *load-pathname*)))
+  (load (merge-pathnames (format nil "~A.lisp" name) *load-pathname*)))
 
 (defun load-config* (&rest names)
   (mapcar #'load-config names))
@@ -29,7 +29,12 @@
 (defapplication firefox :bind (:root "w"))
 (defapplication firefox :newp t :bind (:root "W"))
 (defapplication emacs :newp t :bind (:root "E"))
-(defapplication termite :class "Termite" :bind (:root "c"))
+(defapplication termite :class "Termite" :bind (:root "t"))
+
+;; Open an xterm window with the network-manager UI opened.
+(defcommand network-manager () ()
+  (run-commands "exec xterm -e nmtui"))
+(define-key *root-map* (kbd "c") "network-manager")
 
 ;; Screen Lock
 (defcommand lock () ()

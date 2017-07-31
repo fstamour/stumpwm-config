@@ -1,0 +1,4 @@
+! Replace right shift with menu
+clear Shift
+keysym Shift_R = Menu
+add Shift = Shift_L

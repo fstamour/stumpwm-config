@@ -1,3 +1,5 @@
+;; -*- mode: lisp; -*-
+
 (in-package #:stumpwm-user)
 
 ;; Custom package, to now "interfere" with stumpwm's package.
@@ -6,6 +8,9 @@
 
 ;; Prefix key
 (set-prefix-key (kbd "Menu"))
+
+;; Make the focus follow the mouse.
+(setf *mouse-focus-policy* :sloppy)
 
 ;; dmenu
 (defcommand dmenu-run () ()

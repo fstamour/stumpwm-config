@@ -67,3 +67,8 @@
   (when confirmed-p
     (run-commands "exec systemctl poweroff")))
 
+(defcommand reboot (confirmed-p)
+  ((:y-or-n "About to reboot. U sure? "))
+  (when confirmed-p
+    (run-commands "exec systemctl reboot")))
+

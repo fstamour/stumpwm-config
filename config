@@ -35,6 +35,7 @@
 (defapplication firefox :newp t :bind (:root "W"))
 (defapplication emacs :newp t :bind (:root "E"))
 (defapplication termite :class "Termite" :bind (:root "t"))
+(defapplication anki :class "Anki" :bind (:root "a"))
 
 ;; Open an xterm window with the network-manager UI opened.
 (defcommand network-manager () ()

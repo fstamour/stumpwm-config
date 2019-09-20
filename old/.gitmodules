@@ -1,0 +1,6 @@
+[submodule "extern-dependencies/stumpwm-contrib"]
+	path = extern-dependencies/stumpwm-contrib
+	url = https://github.com/stumpwm/stumpwm-contrib.git
+[submodule "slime"]
+	path = slime
+	url = https://github.com/slime/slime.git

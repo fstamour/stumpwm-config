@@ -1,0 +1,130 @@
+;; -*-lisp-*-
+;;
+;; This is the core of the stumpwmrc file. It defines some path, stream, macro
+;; and function to deal with errors.
+;;
+;; Then it *try* to load main.lisp.
+;;
+
+(defpackage #:stumpwmrc
+  (:use #:cl #:stumpwm))
+
+(in-package #:stumpwmrc)
+
+(defparameter *stumpwmrc-directory*
+  (merge-pathnames #P".stumpwm.d/" (user-homedir-pathname))
+  "The path of the directory to stumwmrc.")
+
+(defmacro try (body on-failure &optional on-success (condition 'condition))
+  ;; @todo Update the doc (I changed the order of the argument, to make on-succed optional)
+  ;; @todo Add optional binding for result. (to use in on-success)
+  ;; @todo unless condition-var (gensym)
+  "This macro takes three forms, the first one is the body, that form is wrapped by an ignore-errors. If there is no error, the second form (called \"on-succes\" is called. If there is an error, the third forms is then called. This macro is un-hygienic, it declare a variable that contain the condition if there is a failure. The fourth argument of this macro is optional and give the user the possibilty to change the name of the variable containing the condition. Note that that variable is also accessible from the \"on-success\" form, but AFAIK it's value would be NIL."
+  (let ((success (gensym))
+	(result (gensym)))
+    `(let ((,success nil))
+       (multiple-value-bind (,result ,condition)
+	   (ignore-errors
+	     ,body
+	     (setq ,success t))
+	 (declare (ignorable ,result ,condition))
+	 (if (not ,success) 
+	     ,on-failure
+	     ,on-success)
+	 ,success))))
+
+(defun get-time-string ()
+  (multiple-value-bind (second minute hour
+			       date month year
+			       day daylight-p zone)
+      (decode-universal-time
+       (get-universal-time))
+    (format nil "~D-~D-~DT~2,'0D:~2,'0D:~2,'0D~C~2,'0D"
+	    year month date
+	    hour minute second
+	    (if (< zone 0) #\- #\+)
+	    (abs zone))))
+
+(defvar *log-stream* nil
+  "The log stream") ;; @todo Doc
+
+;; @todo Add more granularity, maybe we don't want to log things everywhere.
+;; @todo Could it be possible to add colors in stumpwm's messages?
+;;     It it is possible, this function would need to create 2 modifier-fmt:
+;;   one for message (with colors) and one for *log-stream*.
+;; @todo Maybe add another output: a tty!? (with much colours)
+(defun log-message (level fmt &rest args)
+  (declare (ignorable level)
+	   (string fmt))     ;; @todo Use level...
+  "Log a message. It always" ;; @todo Doc
+  (let ((prefix 
+	 (concatenate 'string
+		      (ecase level
+			(:info "[INFO] ")
+			(:error "[ERR]  ")
+			(:warn "[WARN] "))
+		      (get-time-string)
+		      " ")))
+    (apply 'message (concatenate 'string prefix fmt) args)
+    (when *log-stream*
+      (apply 'format *log-stream* (concatenate 'string prefix fmt "~%") args)
+      (finish-output *log-stream*))))
+
+;; Try to open the log file.
+(defun open-log-stream (&optional (filename "logs"))
+  (unless *log-stream* ;; @todo This is a kind of silent error.
+    (ignore-errors
+      (setq *log-stream* (open (merge-pathnames filename *stumpwmrc-directory*)
+			       :direction :output
+			       :if-exists :append
+			       :if-does-not-exist :create)))))
+
+(defun close-log-stream ()
+  (when *log-stream*
+    (close *log-stream*)))
+
+(defun reopen-log-stream (#|No customization here @todo?|#)
+  (close-log-stream)
+  (open-log-stream))
+
+(defun try-load% (pathname)
+  (try
+   (load pathname)
+   (log-message :error "Failed to load ~A: ~A" pathname condition)
+   (log-message :info "~A loaded" pathname)))
+
+;; @todo (Always) Check if this macro still matches "try"'s interface.
+(defmacro try-and-log-error (body &optional on-failure on-success (condition 'condition))
+  `(try
+    ,body
+    (progn
+      (log-message :error "An error occured: \"~A\"." ,condition)
+      ,on-failure)
+    ,on-success
+    ,condition))
+
+;; Create SWANK server
+;; Uncomment this if anything fails.
+;; Then stumpwmrc will open a swank server at startup.
+;; Then you can uses slime (from a tty, via ssh, etc.) to debug stumpwm.
+#+ (or) (try
+	 (require :swank)
+	 (funcall (read-from-string "swank:create-server :dont-close t"))
+	 (message "Failed to start SWANK: \"~A\"." condition))
+
+(defun try-load (filename &optional (directory *stumpwmrc-directory*))
+  "Try to load a file from the specified directory (*stumpwmrc-directory* by default)."
+  (let ((pathname (merge-pathnames directory filename)))
+    (try-load% pathname)))
+
+
+(open-log-stream)
+(when *log-stream*
+  (format *log-stream* "~%"))
+(log-message :info "----- Starting stumpwm! -----")
+
+;;;; Let's get this started!
+;; Load the rest
+(try-load "main.lisp")
+
+

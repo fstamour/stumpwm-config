@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=StumpWM
+Comment=This session logs you into stumpwm
+Exec=/usr/bin/stumpwm
+TryExec=/usr/bin/stumpwm
+Icon=
+Type=XSession
+DesktopNames=StumpWM

@@ -9,3 +9,7 @@
 
 (defcommand mute-toggle () () 
   (run-shell-command "amixer set Master toggle"))
+
+(define-key *top-map* (kbd "XF86AudioLowerVolume") "volume-down")
+(define-key *top-map* (kbd "XF86AudioRaiseVolume") "volume-up")
+(define-key *top-map* (kbd "XF86AudioMute") "mute-toggle")

@@ -28,7 +28,8 @@
   (mapcar #'load-config names))
 
 (load-config* "utils"
-              "defapplication")
+              "defapplication"
+              "audio")
 
 ;; Commonly used applications
 (defapplication firefox :bind (:root "w"))

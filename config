@@ -29,7 +29,8 @@
 
 (load-config* "utils"
               "defapplication"
-              "audio")
+              "audio"
+              "laptop")
 
 ;; Commonly used applications
 (defapplication firefox :bind (:root "w"))

@@ -47,8 +47,6 @@ function name like that."
       (format nil "~@:(~{~A~}~)" rest)
       :keyword))))
 
-(try-load "audio.lisp")
-(try-load "behaviour.lisp")
 (try-load "application.lisp")
 (try-load "daemons.lisp")
 (try-load "locale.lisp")

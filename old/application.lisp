@@ -25,8 +25,8 @@
 	   ,@(if newp
 		 (list (cat "Start a new instance of " name ".")
 		       `(message ,(format nil "Run a new instance of ~A" name)))
-		 
-	       (list 
+
+	       (list
 		(cat "Start " (downcase-cat name)  " or switch to it if already running.")
 		`(message ,(format nil "Run or raise ~A" name))))
 	   ;; The run-shell-command OR run-or-raise.
@@ -65,7 +65,7 @@
   (firefox :bind "f")
   (gmpc :command-name "mpd-interface" :bind "m")
   (gnome-terminal :class "terminal")
-  (codeblocks)		
+  (codeblocks)
   (emacs :bind "e")
   (emacs :newp t :bind "E")
   (freemind :class "FreeMind" :bind "b") ;; 'b' like in 'brainstorm'

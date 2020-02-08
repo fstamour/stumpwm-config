@@ -8,6 +8,8 @@
 
 ;; Prefix key
 (set-prefix-key (kbd "Menu"))
+;; TODO use "Shift-menu" to send "menu"
+;; (define-key *top-map* (kbd "C-Menu") "send-escape")
 
 ;; Make the focus follow the mouse.
 (setf *mouse-focus-policy* :sloppy)

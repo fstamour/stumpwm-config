@@ -35,9 +35,10 @@
 
 ;; Commonly used applications
 (defapplication firefox :bind (:root "w"))
-(defapplication firefox :newp t :bind (:root "W"))
-(defapplication emacs :newp t :bind (:root "E"))
+(defapplication firefox :bind (:root "W") :newp t)
+(defapplication emacs :bind (:root "E") :newp t)
 (defapplication termite :class "Termite" :bind (:root "t"))
+(defapplication termite :class "Termite" :bind (:root "T") :newp t)
 (defapplication anki :class "Anki" :bind (:root "a"))
 
 ;; Open an xterm window with the network-manager UI opened.

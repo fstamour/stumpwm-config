@@ -17,6 +17,7 @@
   (run-commands "exec bash -i -c dmenu_run"))
 (define-key *top-map* (kbd "C-Menu") "dmenu-run")
 
+;; FIXME *app-root-map* is not used
 ;; Applications
 (defvar *app-root-map* (make-sparse-keymap))
 (define-key *top-map* (kbd "S-Menu") *app-root-map*)

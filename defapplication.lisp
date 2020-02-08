@@ -27,14 +27,7 @@ Some examples:
   ;; Some local variable
   (let ((other-args (remove-from-plist rest
                                        :args :bind :class :command-name :newp))
-        (command
-          (symcat
-           (let ((basename (if command-name
-                               command-name
-                               name)))
-             (if newp
-                 (symcat basename '-new)
-                 basename)))))
+        (command (symcat (or command-name name) (if newp '-new ""))))
     `(prog1
          ;; The command itself
          (defcommand ,command

@@ -76,3 +76,10 @@
   (when confirmed-p
     (run-commands "exec systemctl reboot")))
 
+
+;; move windows around with the "super" key
+(define-key *top-map* (kbd "s-Right") "move-window right")
+(define-key *top-map* (kbd "s-Left") "move-window left")
+(define-key *top-map* (kbd "s-Up") "move-window up")
+(define-key *top-map* (kbd "s-Down") "move-window down")
+

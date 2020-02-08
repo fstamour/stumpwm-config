@@ -42,6 +42,8 @@
 (defapplication termite :class "Termite" :bind (:root "t"))
 (defapplication termite :class "Termite" :bind (:root "T") :newp t)
 (defapplication anki :class "Anki" :bind (:root "a"))
+(defapplication nautilus :bind (:top "s-e"))
+(defapplication nautilus :bind (:top "s-E") :newp t)
 
 ;; Open an xterm window with the network-manager UI opened.
 (defcommand network-manager () ()

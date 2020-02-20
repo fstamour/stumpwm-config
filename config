@@ -14,6 +14,13 @@
 ;; Make the focus follow the mouse.
 (setf *mouse-focus-policy* :sloppy)
 
+;; Don't jump between groups when switching apps
+(setf *run-or-raise-all-groups* nil)
+
+;; Don't bring windows from another screen into the current one
+;; ^^^ NOT TESTED, I'm on my laptop ATM.
+(setf *run-or-raise-all-screens* nil)
+
 ;; dmenu
 (defcommand dmenu-run () ()
   (run-commands "exec bash -i -c dmenu_run"))

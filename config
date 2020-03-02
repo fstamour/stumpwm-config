@@ -40,7 +40,8 @@
 (load-config* "utils"
               "defapplication"
               "audio"
-              "laptop")
+              "laptop"
+              "modeline")
 
 ;; Commonly used applications
 (defapplication firefox :bind (:root "w"))

@@ -50,6 +50,7 @@
 (defapplication termite :class "Termite" :bind (:root "t"))
 (defapplication termite :class "Termite" :bind (:root "T") :newp t)
 (defapplication anki :class "Anki" :bind (:root "a"))
+(defapplication vlc :class "vlc" :bind (:root "v"))
 (defapplication nautilus :bind (:top "s-e"))
 (defapplication nautilus :bind (:top "s-E") :newp t)
 
@@ -101,6 +102,7 @@
 
 (defvar *swank-p* nil
   "Flag if swank is started or not")
+
 (ignore-errors
   (load "~/.config/stumpwm/slime/swank-loader.lisp")
   (uiop:symbol-call :swank-loader :init)

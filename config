@@ -89,16 +89,33 @@
   (when confirmed-p
     (run-commands "exec systemctl reboot")))
 
-
 ;; move windows around with the "super" key
 (define-key *top-map* (kbd "s-Right") "move-window right")
 (define-key *top-map* (kbd "s-Left") "move-window left")
 (define-key *top-map* (kbd "s-Up") "move-window up")
 (define-key *top-map* (kbd "s-Down") "move-window down")
 
-;; Fix issues with scrollin
-(setf (getenv "GDK_CORE_DEVICE_EVENTS") "1")
+;; move the focus around with the "super" key
+(define-key *top-map* (kbd "s-h") "move-focus left")
+(define-key *top-map* (kbd "s-j") "move-focus down")
+(define-key *top-map* (kbd "s-k") "move-focus up")
+(define-key *top-map* (kbd "s-l") "move-focus right")
 
+;; split and "maximize" windows with the "super" key
+(define-key *top-map* (kbd "s-s") "vsplit")
+(define-key *top-map* (kbd "s-v") "hsplit")
+(define-key *top-map* (kbd "s-o") "only")
+
+;; pull windows with the "super" key
+(define-key *top-map* (kbd "s-n") "pull-hidden-next")
+(define-key *top-map* (kbd "s-p") "pull-hidden-previous")
+(define-key *top-map* (kbd "M-Tab") "pull-hidden-next")
+(define-key *top-map*
+    (stumpwm::make-key :meta t :keysym (stumpwm::stumpwm-name->keysym "ISO_Left_Tab"))
+  "pull-hidden-previous")
+
+;; Fix issues with scrolling
+(setf (getenv "GDK_CORE_DEVICE_EVENTS") "1")
 
 (defvar *swank-p* nil
   "Flag if swank is started or not")

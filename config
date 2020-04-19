@@ -13,6 +13,11 @@
 ;; TODO use "Shift-menu" to send "menu"
 ;; (define-key *top-map* (kbd "C-Menu") "send-escape")
 
+;; Run xrandr script if it exists
+(let ((xrandr-script (merge-pathnames "xrandr" (user-homedir-pathname))))
+  (when (probe-file xrandr-script))
+  (run-shell-command (namestring xrandr-script)))
+
 ;; Make the focus follow the mouse.
 (setf *mouse-focus-policy* :sloppy)
 

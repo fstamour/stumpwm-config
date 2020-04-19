@@ -2,6 +2,8 @@
 
 (in-package #:stumpwm-user)
 
+(message "Loading ~s" *load-pathname*)
+
 ;; Custom package, to now "interfere" with stumpwm's package.
 (defpackage #:stumpwmrc
   (:use #:cl #:stumpwm))
@@ -20,6 +22,9 @@
 ;; Don't bring windows from another screen into the current one
 ;; ^^^ NOT TESTED, I'm on my laptop ATM.
 (setf *run-or-raise-all-screens* nil)
+
+;; Change the color of the border around the focused window (default is white)
+(set-focus-color "orange")
 
 ;; dmenu
 (defcommand dmenu-run () ()
@@ -138,3 +143,5 @@
 	    (echo-string
 	     (current-screen)
 	     "Starting swank. M-x slime-connect RET RET")))))
+
+(message "~s loaded" *load-pathname*)

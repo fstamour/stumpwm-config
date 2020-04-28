@@ -138,3 +138,8 @@
 	    (echo-string
 	     (current-screen)
 	     "Starting swank. M-x slime-connect RET RET")))))
+
+;; on startup, open a terminal with at terminal multiplexer
+(ignore-errors
+  (run-shell-command "alacritty --command tmux"))
+

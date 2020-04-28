@@ -62,4 +62,4 @@ Some examples:
                  (key (if listp
                           (second bind)
                           bind)))
-            `(define-key ,map (kbd ,key) ,(cat command)))))))
+            `(define-key ,map (kbd ,key) ,(format nil "~(~a~)" command)))))))

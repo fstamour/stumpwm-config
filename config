@@ -131,8 +131,14 @@
 (setf (getenv "GDK_CORE_DEVICE_EVENTS") "1")
 
 
+(defvar *startup-done-p* nil
+  "Use to determine if the commands ran at startup already ran or not")
+
 ;; on startup, open a terminal with at terminal multiplexer
-(ignore-errors
-  (run-shell-command "alacritty --command tmux"))
+(unless *startup-done-p*
+  (progn
+    (ignore-errors
+      (run-or-raise "alacritty --command tmux" '(:class "Alacritty")))
+    (setf *startup-done-p* t)))
 
 (message "~s loaded" *load-pathname*)

@@ -1,6 +1,17 @@
 
 (in-package #:stumpwmrc)
 
+(defvar *battery-file*
+  (probe-file "/sys/class/power_supply/BAT1/capacity"))
+
+(defun battery-capacity ()
+  (when *battery-file*
+    (with-open-file (stream *battery-file*)
+      (parse-integer
+       (read-line stream)))))
+
+;; (battery-capacity)
+
 ;; Used to test changes to modeline's colors
 (defun restart-mode-line-eveywhere ()
   (loop for screen in *screen-list* do
@@ -33,6 +44,11 @@
 	;; Groups Windows
 	;; '(:eval (stumpwm:run-shell-command "date" t))
 	;; '(:eval (bar 50 10 #\x #\-))
+	(when *battery-file*
+	  "[bat: "
+          (:eval (bar (battery-capacity) 10 #\x #\-))
+	  "] ")
+	;; (:eval (format nil "~a% " (battery-capacity)))
         "^5[^B%d^b]"))
 
 

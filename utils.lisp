@@ -1,4 +1,6 @@
 
+(in-package #:stumpwmrc)
+
 ;;; Some string munching utilities
 (eval-when (:execute :load-toplevel :compile-toplevel)
   (export

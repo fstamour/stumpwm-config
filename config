@@ -8,6 +8,8 @@
 (defpackage #:stumpwmrc
   (:use #:cl #:stumpwm))
 
+(in-package #:stumpwmrc)
+
 ;; Prefix key
 (set-prefix-key (kbd "Menu"))
 ;; TODO use "Shift-menu" to send "menu"

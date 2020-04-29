@@ -1,4 +1,6 @@
 
+(in-package #:stumpwmrc)
+
 ;;; TODO This macro could be splitted in
 ;;;  * Docstring and message part
 ;;;  * Run OR Run-or-raise

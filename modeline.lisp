@@ -44,10 +44,10 @@
 	;; Groups Windows
 	;; '(:eval (stumpwm:run-shell-command "date" t))
 	;; '(:eval (bar 50 10 #\x #\-))
-	(when *battery-file*
-	  "[bat: "
-          (:eval (bar (battery-capacity) 10 #\x #\-))
-	  "] ")
+	,@(when *battery-file*
+	    '("[bat: "
+	      (:eval (bar (battery-capacity) 10 #\x #\-))
+	      "] "))
 	;; (:eval (format nil "~a% " (battery-capacity)))
         "^5[^B%d^b]"))
 

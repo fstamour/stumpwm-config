@@ -15,13 +15,13 @@
 ;; Used to test changes to modeline's colors
 (defun restart-mode-line-eveywhere ()
   (loop for screen in *screen-list* do
-    (loop for head in (screen-heads (current-screen)) do
+    (loop for head in (screen-heads screen) do
 	 (enable-mode-line screen head nil)
 	 (enable-mode-line screen head t))))
 
 (defun enable-mode-line-eveywhere ()
   (loop for screen in *screen-list* do
-    (loop for head in (screen-heads (current-screen)) do
+    (loop for head in (screen-heads screen) do
 	    (enable-mode-line screen head t))))
 
 ;; The colors must be set before enabling the mode line

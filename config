@@ -69,6 +69,11 @@
 (defapplication nautilus :bind (:top "s-e"))
 (defapplication nautilus :bind (:top "s-E") :newp t)
 
+;; Take a screenshot
+(defcommand screenshot () ()
+  (run-shell-command "flameshot gui"))
+(define-key *top-map* (kbd "SunPrint_Screen") "screenshot")
+
 ;; Open an xterm window with the network-manager UI opened.
 (defcommand network-manager () ()
   (run-commands "exec xterm -e nmtui"))

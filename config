@@ -35,7 +35,7 @@
 
 ;; dmenu
 (defcommand dmenu-run () ()
-  (run-commands "exec bash -i -c dmenu_run"))
+  (run-shell-command "dmenu_run"))
 (define-key *top-map* (kbd "C-Menu") "dmenu-run")
 
 ;; FIXME *app-root-map* is not used

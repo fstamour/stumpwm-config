@@ -11,7 +11,11 @@
 (in-package #:stumpwmrc)
 
 ;; Prefix key
-(set-prefix-key (kbd "Menu"))
+(set-prefix-key (kbd
+		 #-freebsd
+		 "Menu"
+		 #+freebsd
+		 "XF86MenuKB"))
 ;; TODO use "Shift-menu" to send "menu"
 ;; (define-key *top-map* (kbd "C-Menu") "send-escape")
 

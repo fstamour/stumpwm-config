@@ -56,7 +56,8 @@
 (load-config* "utils"
               "defapplication"
               "audio"
-              "laptop"
+	      ;; I'm running freebsd only on my laptop ATM
+	      #+freebsd "laptop"
               "modeline"
               "swank")
 

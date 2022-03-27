@@ -21,8 +21,9 @@
 
 ;; Run xrandr script if it exists
 (let ((xrandr-script (merge-pathnames "xrandr" (user-homedir-pathname))))
-  (when (probe-file xrandr-script))
-  (run-shell-command (namestring xrandr-script)))
+  (when (probe-file xrandr-script)
+    (run-shell-command (namestring xrandr-script))
+    (sleep 1)))
 
 ;; Make the focus follow the mouse.
 (setf *mouse-focus-policy* :sloppy)

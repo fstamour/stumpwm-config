@@ -3,12 +3,13 @@
 
 #-freebsd
 (let ((script
-	(merge-pathnames
-	 "nvidia-backlight-brightness.sh" *load-pathname*)))
+        (merge-pathnames
+         "nvidia-backlight-brightness.sh" *load-pathname*)))
   (defcommand brightness-up () ()
     (run-shell-command (format nil "~a up" script)))
   (defcommand brightness-down () ()
     (run-shell-command (format nil "~a down" script))))
+
 
 #+freebsd
 (defcommand brightness-up () ()

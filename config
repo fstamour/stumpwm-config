@@ -63,7 +63,7 @@
               "swank")
 
 ;; Commonly used applications
-(defapplication firefox :bind (:root "w"))
+(defapplication firefox :bind (:root "w") :class "firefox")
 (defapplication firefox :bind (:root "W") :newp t)
 (defapplication emacs :bind (:root "E") :newp t)
 (defapplication emacsclient :args "-c" :bind (:root "C-e"))
@@ -151,7 +151,7 @@
 (unless *startup-done-p*
   (progn
     (ignore-errors
-      (run-or-raise "alacritty --command tmux" '(:class "Alacritty")))
+     (run-or-raise "alacritty --command tmux" '(:class "Alacritty")))
     (setf *startup-done-p* t)))
 
 (message "~s loaded" *load-pathname*)

@@ -5,9 +5,9 @@
   (if newp
       (list (cat "Starts a new instance of " name ".")
             `(message ,(format nil "Run a new instance of ~A" name)))
-
       (list
-       (cat "Start " (downcase-cat name)  " or switch to it if already running.")
+       (cat "Start " (downcase-cat name)
+            " or switch to it if already running.")
        `(message ,(format nil "Run or raise ~A" name)))))
 
 
@@ -24,7 +24,7 @@ other-args are passed to run-or-raise
   (if newp
       `(run-shell-command ,(downcase-cat name)) ;; TODO Add Args here?
       `(run-or-raise
-	,(if args
+        ,(if args
              (downcase-cat name " " args)
              (downcase-cat name))
         ',(append other-args
@@ -60,9 +60,9 @@ other-args are passed to run-or-raise
   (defapplication/bindings "c" 'command))
 
 (defmacro defapplication (name
-			  &rest rest
-			  &key args bind class command-name newp
-			    &allow-other-keys)
+                          &rest rest
+                          &key args bind class command-name newp
+                          &allow-other-keys)
   "A macro to define commands.
 Let's you easily define a new stumpwm command with some common behaviour, like \"run-or-raise\" and then bind the command
 
@@ -84,16 +84,16 @@ Some examples:
   (check-type name symbol)
   ;; Some local variable
   (let ((other-args (remove-from-plist
-		     rest :args :bind :class :command-name :newp))
+                     rest :args :bind :class :command-name :newp))
         (command (symcat (or command-name name) (if newp '-new ""))))
     `(prog1
          ;; The command itself
          (defcommand ,command
              () ()
            ;; Docstring + Message
-	   ,@(defapplication/docstring+message name newp)
+           ,@(defapplication/docstring+message name newp)
 
            ;; The run-shell-command OR run-or-raise.
-	   ,(defapplication/command name newp class args other-args))
+           ,(defapplication/command name newp class args other-args))
        ;; Bindings
        ,(defapplication/bindings bind command))))

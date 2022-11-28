@@ -19,6 +19,7 @@
 ;; TODO use "Shift-menu" to send "menu"
 ;; (define-key *top-map* (kbd "C-Menu") "send-escape")
 
+;; TODO Don't run if *startup-done-p*
 ;; Run xrandr script if it exists
 (let ((xrandr-script (merge-pathnames "xrandr" (user-homedir-pathname))))
   (when (probe-file xrandr-script)
@@ -34,9 +35,6 @@
 ;; Don't bring windows from another screen into the current one
 ;; ^^^ NOT TESTED, I'm on my laptop ATM.
 (setf *run-or-raise-all-screens* nil)
-
-;; Change the color of the border around the focused window (default is white)
-(set-focus-color "orange")
 
 ;; dmenu
 (defcommand dmenu-run () ()
@@ -57,6 +55,7 @@
 (load-config* "utils"
               "defapplication"
               "audio"
+              "aesthetic"
               ;; I'm running freebsd only on my laptop ATM
               #+freebsd "laptop"
               "modeline"

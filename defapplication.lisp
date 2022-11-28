@@ -1,3 +1,5 @@
+;; 2022-11-11 I noticed the macro defprogram-shortcut was added, I
+;; might be able to replace this macro with something built-in.
 
 (in-package #:stumpwmrc)
 

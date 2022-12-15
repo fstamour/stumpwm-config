@@ -4,6 +4,7 @@
 (in-package #:stumpwmrc)
 
 (defun defapplication/docstring+message (name newp)
+  "Generate the message that is going to be shown when executing the command."
   (if newp
       (list (cat "Starts a new instance of " name ".")
             `(message ,(format nil "Run a new instance of ~A" name)))

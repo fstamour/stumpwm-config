@@ -14,21 +14,27 @@
 (setf *default-package* (find-package '#:stumpwmrc))
 
 
-;; Prefix key
-(set-prefix-key (kbd
-                 #-freebsd
-                 "Menu"
-                 #+freebsd
-                 "XF86MenuKB"))
-;; TODO use "Shift-menu" to send "menu"
-;; (define-key *top-map* (kbd "C-Menu") "send-escape")
+;;; Configuring the prefix key
 
-;; TODO Don't run if *startup-done-p*
-;; Run xrandr script if it exists
-(let ((xrandr-script (merge-pathnames "xrandr" (user-homedir-pathname))))
-  (when (probe-file xrandr-script)
-    (run-shell-command (namestring xrandr-script))
-    (sleep 1)))
+(defparameter +menu-key+
+  #-freebsd "Menu"
+  #+freebsd "XF86MenuKB"
+  "Variable that contains the key designator for the \"menu key\".")
+
+(defun menu-key (&optional control-string)
+  "Helper to get variations of the menu key."
+  (if control-string
+      (kbd (format nil control-string +menu-key+))
+      (kbd +menu-key+)))
+
+;; Prefix key
+(set-prefix-key (menu-key))
+
+;; Use "Shift-menu" to send the prefix key (menu)
+(define-key *top-map* (menu-key "S-~A") "send-escape")
+
+
+;;; Configuring behaviours
 
 ;; Make the focus follow the mouse.
 (setf *mouse-focus-policy* :sloppy)
@@ -40,15 +46,8 @@
 ;; ^^^ NOT TESTED, I'm on my laptop ATM.
 (setf *run-or-raise-all-screens* nil)
 
-;; dmenu
-(defcommand dmenu-run () ()
-  (run-shell-command "dmenu_run"))
-(define-key *top-map* (kbd "C-Menu") "dmenu-run")
-
-;; FIXME *app-root-map* is not used
-;; Applications
-(defvar *app-root-map* (make-sparse-keymap))
-(define-key *top-map* (kbd "S-Menu") *app-root-map*)
+
+;;; Loading other files
 
 (defun load-config (name)
   (load (merge-pathnames (format nil "~A.lisp" name) *load-pathname*)))
@@ -63,11 +62,17 @@
               ;; I'm running freebsd only on my laptop ATM
               #+freebsd "laptop"
               "modeline"
-              "swank")
+              "swank"
+              "rofi")
+
+
+;;; Common applications
 
 ;; Commonly used applications
 (defapplication firefox :bind (:root "w") :class "firefox")
 (defapplication firefox :bind (:root "W") :newp t)
+(define-key *top-map* (kbd "KP_Home") "firefox") ;; KP_7
+
 (defapplication emacs :bind (:root "E") :newp t)
 (defapplication emacsclient :args "-c" :bind (:root "C-e"))
 
@@ -75,10 +80,25 @@
 ;; (defapplication alacritty :bind (:root "T") :newp t)
 (defapplication kitty :bind (:root "t") :class "kitty")
 (defapplication kitty :bind (:root "T") :newp t)
+(define-key *top-map* (kbd "KP_Left") "emacs")
+
 (defapplication anki :class "Anki" :bind (:root "a"))
-(defapplication vlc :class "vlc" :bind (:root "v"))
+;; (defapplication vlc :class "vlc" :bind (:root "v"))
+(defapplication code :bind (:root "v"))
+(define-key *top-map* (kbd "KP_Begin") "code")
+
 (defapplication nautilus :bind (:top "s-e"))
 (defapplication nautilus :bind (:top "s-E") :newp t)
+
+;; TODO See *numpad-map*
+(defapplication teams :bind (:top "KP_Insert") :class "teams")
+
+(defapplication keepassxc :bind (:top "KP_Up")) ;; KP_8
+
+;; KP_9 is snippets
+
+
+;;; Key Bindings
 
 ;; Take a screenshot
 (defcommand screenshot () ()
@@ -145,10 +165,42 @@
     (stumpwm::make-key :meta t :keysym (stumpwm::stumpwm-name->keysym "ISO_Left_Tab"))
   "pull-hidden-previous")
 
+
+;;; Fixes
+
 ;; Fix issues with scrolling
 (setf (getenv "GDK_CORE_DEVICE_EVENTS") "1")
 
+
+;;; Start-up
 
+;; Start emacs, so that emacsclient runs correctly
+(save-frame-excursion
+ (run-commands "emacs"))
+
+(mapcar #'(lambda (args)
+            (destructuring-bind (group-name &rest commands)
+                (if (listp args) args (list args))
+              (gnewbg group-name)
+              (when commands
+                (save-frame-excursion
+                 (gselect group-name)
+                 ;; (sleep 1)
+                 (apply #'run-commands commands)
+                 ;; (sleep 1)
+                 (gother)))))
+        '("music" "chat" ("workflow"
+                          ;; If I run emacsclient here, the window is
+                          ;; not created in the right group, but I
+                          ;; manually run the command while I'm the
+                          ;; right group, it works.
+                          ;; "emacsclient"
+                          ;; "gmove"
+                          ;; ALSO, the command emacsclient is not idempotent (I can't reload the config safely)
+                          )))
+
+
+;; TODO use *initializing* instead
 (defvar *startup-done-p* nil
   "Use to determine if the commands ran at startup already ran or not")
 
@@ -158,7 +210,15 @@
    ;; I now start applications with [dex](https://github.com/jceb/dex)
    ;; (run-or-raise "kitty tmux" '(:class "kitty"))
    ;; (run-or-raise "alacritty --command tmux" '(:class "Alacritty"))
-   )
+
+   ;; Run xrandr script if it exists
+   (let ((xrandr-script (merge-pathnames "xrandr" (user-homedir-pathname))))
+     (when (probe-file xrandr-script)
+       (run-shell-command (namestring xrandr-script))
+       (sleep 1))))
   (setf *startup-done-p* t))
+
+
+;;; Done!
 
 (message "~s loaded" *load-pathname*)

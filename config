@@ -10,6 +10,10 @@
 
 (in-package #:stumpwmrc)
 
+;; Change the default package when evaluating using Prefix-:
+(setf *default-package* (find-package '#:stumpwmrc))
+
+
 ;; Prefix key
 (set-prefix-key (kbd
                  #-freebsd

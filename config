@@ -221,6 +221,7 @@
    ;; (run-or-raise "alacritty --command tmux" '(:class "Alacritty"))
 
    ;; Run xrandr script if it exists
+#++
    (let ((xrandr-script (merge-pathnames "xrandr" (user-homedir-pathname))))
      (when (probe-file xrandr-script)
        (run-shell-command (namestring xrandr-script))

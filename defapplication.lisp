@@ -26,7 +26,7 @@ other-args are passed to run-or-raise
 "
   (if newp
       `(run-shell-command ,(downcase-cat name)) ;; TODO Add Args here?
-      `(run-or-raise
+      `(my-run-or-raise
         ,(if args
              (downcase-cat name " " args)
              (downcase-cat name))

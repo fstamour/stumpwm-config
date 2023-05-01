@@ -35,14 +35,14 @@
   #+freebsd
   (let ((current-volume (current-volume)))
     (if (zerop current-volume)
-	;; Currently muted, unmute
-	;; TODO what if *volume-before-muting* is nil?
-	(run-shell-command (format nil "mixer ~d"
-				   *volume-before-muting*))
-	;; Not muted, muting
-	(progn
-	  (setf *volume-before-muting* current-volume)
-	  (run-shell-command "mixer 0")))))
+        ;; Currently muted, unmute
+        ;; TODO what if *volume-before-muting* is nil?
+        (run-shell-command (format nil "mixer ~d"
+                                   *volume-before-muting*))
+        ;; Not muted, muting
+        (progn
+          (setf *volume-before-muting* current-volume)
+          (run-shell-command "mixer 0")))))
 
 ;; for testing: (mute-toggle)
 
@@ -50,7 +50,18 @@
 (define-key *top-map* (kbd "XF86AudioRaiseVolume") "volume-up")
 (define-key *top-map* (kbd "XF86AudioMute") "mute-toggle")
 
-(define-key *top-map* (kbd "XF86AudioPlay") "music-toggle")
-(define-key *top-map* (kbd "XF86AudioStop") "music-stop")
-(define-key *top-map* (kbd "XF86AudioNext") "music-next")
-(define-key *top-map* (kbd "XF86AudioPrev") "music-prev")
+;;
+#|
+(define-key *top-map* (kbd "XF86AudioPlay") "music-toggle") ;
+(define-key *top-map* (kbd "XF86AudioStop") "music-stop") ;
+(define-key *top-map* (kbd "XF86AudioNext") "music-next") ;
+(define-key *top-map* (kbd "XF86AudioPrev") "music-prev") ;
+|#
+
+#|
+(progn                                  ;
+(undefine-key *top-map* (kbd "XF86AudioPlay")) ;
+(undefine-key *top-map* (kbd "XF86AudioStop")) ;
+(undefine-key *top-map* (kbd "XF86AudioNext")) ;
+(undefine-key *top-map* (kbd "XF86AudioPrev"))) ;
+|#

@@ -58,7 +58,7 @@
 (load-config* "utils"
               "mru"
               "defapplication"
-              "audio"
+              ;; "audio" ;; currently using xbindkeys + shell scripts for this
               "aesthetic"
               ;; I'm running freebsd only on my laptop ATM
               #+freebsd "laptop"
@@ -76,16 +76,21 @@
 
 (defapplication emacs :bind (:root "E") :newp t)
 (defapplication emacsclient :args "-c" :bind (:root "C-e"))
+(define-key *top-map* (kbd "KP_Left") "emacs")
 
 ;; (defapplication alacritty :bind (:root "t"))
 ;; (defapplication alacritty :bind (:root "T") :newp t)
 (defapplication kitty :bind (:root "t") :class "kitty")
 (defapplication kitty :bind (:root "T") :newp t)
-(define-key *top-map* (kbd "KP_Left") "emacs")
+;; TODO (define-key *top-map* (kbd "KP_Left") "kitty")
+(define-key *root-map* (kbd "C-t") "exec ~/bin/dwim select-tmux")
 
 (defapplication anki :class "Anki" :bind (:root "a"))
-;; (defapplication vlc :class "vlc" :bind (:root "v"))
+(defapplication vlc :class "vlc")
+
 (defapplication code :bind (:root "v"))
+(define-key *root-map* (kbd "C-v") "exec ~/bin/dwim select-vscode")
+(defapplication code :bind (:root "V") :newp t)
 (define-key *top-map* (kbd "KP_Begin") "code")
 
 (defapplication nautilus :bind (:top "s-e"))
@@ -97,6 +102,8 @@
 (defapplication keepassxc :bind (:top "KP_Up")) ;; KP_8
 
 ;; KP_9 is snippets
+
+(define-key *root-map* (kbd "q") "exec ~/bin/quicksearch")
 
 
 ;;; Key Bindings
@@ -142,16 +149,21 @@
     (run-commands "exec systemctl reboot")))
 
 ;; move windows around with the "super" key
-(define-key *top-map* (kbd "s-Right") "move-window right")
-(define-key *top-map* (kbd "s-Left") "move-window left")
-(define-key *top-map* (kbd "s-Up") "move-window up")
-(define-key *top-map* (kbd "s-Down") "move-window down")
+(define-key *top-map* (kbd "s-S-Right") "move-window right")
+(define-key *top-map* (kbd "s-S-Left") "move-window left")
+(define-key *top-map* (kbd "s-S-Up") "move-window up")
+(define-key *top-map* (kbd "s-S-Down") "move-window down")
 
 ;; move the focus around with the "super" key
 (define-key *top-map* (kbd "s-h") "move-focus left")
 (define-key *top-map* (kbd "s-j") "move-focus down")
 (define-key *top-map* (kbd "s-k") "move-focus up")
 (define-key *top-map* (kbd "s-l") "move-focus right")
+(define-key *top-map* (kbd "s-Right") "move-focus right")
+(define-key *top-map* (kbd "s-Left") "move-focus left")
+(define-key *top-map* (kbd "s-Up") "move-focus up")
+(define-key *top-map* (kbd "s-Down") "move-focus down")
+
 
 ;; split and "maximize" windows with the "super" key
 (define-key *top-map* (kbd "s-s") "vsplit")

@@ -13,10 +13,21 @@
 (defvar *swank-p* nil
   "Flag if swank is started or not")
 
+(defun function-available-p (package-designator symbol-name)
+  (let* ((package (find-package package-designator))
+         (symbol (and package (find-symbol symbol-name package))))
+    (list
+     :package package
+     :symbol symbol
+     :fboundp (and symbol (fboundp symbol)))))
+
+
 (defun swank-available-p ()
   "Test if the swank package is available"
-  ;; already loaded
-  (find-package '#:swank))
+  (unless
+      (find-package '#:sb-cltl2)
+    (error "Can't find the package SB-CLTL2 require to load swank."))
+  (function-available-p '#:swank "CREATE-SERVER"))
 
 (defun swank-started-p ()
   ""
@@ -28,7 +39,7 @@
     *swank-p*
     ;; already started, but not with the "swank" command
     (ignore-errors
-      (uiop:symbol-call :swank :connection-info)))))
+     (uiop:symbol-call :swank :connection-info)))))
 
 (defun load-swank-from (slime-root)
   (unless (swank-started-p)
@@ -37,22 +48,22 @@
           (swank-asd (merge-pathnames "swank.asd" slime-root)))
 
       ;; Try to load swank using swank-loader
-      (ignore-errors
+      (progn ;;ignore-errors
         (load swank-loader)
         (uiop:symbol-call :swank-loader :init :reload t :load-contribs t :quiet nil)
-        (message "Loaded ~s successfully." swank-loader)
+        (message "Loaded ~s using swank-loader successfully." swank-loader)
         (return-from load-swank-from))
-      (message "Failed to load ~s." swank-loader)
+      (message "Failed to load ~s using swank-loader." swank-loader)
 
       ;; Load the asd file if it swank-loader didn't work for some reason
       (ignore-errors
-        (if (asdf:load-asd swank-asd)
-            (progn
-              (asdf:load-system "swank")
-              (message "Loaded ~s successfully." swank-asd)
-              (return-from load-swank-from))
-            (message "Failed to load system definition ~s." swank-asd)))
-      (message "Failed to load swank system." swank-asd))))
+       (if (asdf:load-asd swank-asd)
+           (progn
+             (asdf:load-system "swank" :force t)
+             (message "Loaded ~s using asdf:load-system successfully." swank-asd)
+             (return-from load-swank-from))
+           (message "Failed to load system definition ~s (using asdf:load-asd)." swank-asd)))
+      (message "Failed to load swank system using asdf." swank-asd))))
 
 (unless (probe-file +slime-submodule+)
   (message "~&The folder \"~a\" doesn't exists, have you clone the submodule?"

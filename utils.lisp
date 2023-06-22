@@ -52,3 +52,7 @@ function name like that."
     (loop :for (key value) :on plist :by #'cddr
           :unless (member key keys :test #'eq )
             :collect key and collect (first rest))))
+
+
+(defun laptop-p ()
+  (string= "phi" (cl:machine-instance)))

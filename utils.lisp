@@ -2,6 +2,7 @@
 (in-package #:stumpwmrc)
 
 ;;; Some string munching utilities
+;;; TODO I'm not even sure if I still use these
 (eval-when (:execute :load-toplevel :compile-toplevel)
   (export
    (defun cat (&rest rest)
@@ -53,6 +54,16 @@ function name like that."
           :unless (member key keys :test #'eq )
             :collect key and collect (first rest))))
 
+
 
 (defun laptop-p ()
   (string= "phi" (cl:machine-instance)))
+
+(defun guixp ()
+  #-freebsd
+  (ignore-errors
+   (search "Guix"
+           (uiop:read-file-line "/etc/os-release"))))
+
+(defun systemctlp ()
+  (not (guixp)))

@@ -79,6 +79,7 @@ were "triggered" because of an invocation of "run-or-raise".
 (defvar *cycle* ()
   "The current list of windows being cycled over.")
 
+;; TODO if possible, use *executing-stumpwm-command* instead
 (defvar *inside-my-run-or-raise-p* nil
   "Use inside the hooks, to detect whether the change of focus was triggered by \"my-run-or-raise\".")
 

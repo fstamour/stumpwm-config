@@ -3,18 +3,39 @@
 
 (in-package #:stumpwmrc)
 
+(defun defapplication/docstring (name newp)
+  "Generate the docstring for the command."
+  (if newp
+      (format nil "Starts a new instance of ~a." name)
+    (format nil "Start ~(~a~) or switch to it if already running." name)))
+
+(defun defapplication/message (name newp)
+  "Generate the message that is going to be shown when executing the command."
+  nil
+  #++ ; Testing something: Don't show a message
+  (if newp
+      `(message ,(format nil "Run a new instance of ~A" name))
+    `(message ,(format nil "Run or raise ~A" name))))
+
+(defun defapplication/docstring+message (name newp)
+  "Generate the message that is going to be shown when executing the command."
+  (list (defapplication/docstring name newp)
+        (defapplication/message name newp)))
+
+;; the original, before I split it in two
+#++
 (defun defapplication/docstring+message (name newp)
   "Generate the message that is going to be shown when executing the command."
   (if newp
       (list (cat "Starts a new instance of " name ".")
             `(message ,(format nil "Run a new instance of ~A" name)))
-      (list
-       (cat "Start " (downcase-cat name)
-            " or switch to it if already running.")
-       `(message ,(format nil "Run or raise ~A" name)))))
+    (list
+     (cat "Start " (downcase-cat name)
+          " or switch to it if already running.")
+     `(message ,(format nil "Run or raise ~A" name)))))
 
 
-#+nil
+#++
 (progn
   (defapplication/docstring+message 'firefox nil)
   (defapplication/docstring+message 'firefox t))
@@ -26,16 +47,16 @@ other-args are passed to run-or-raise
 "
   (if newp
       `(run-shell-command ,(downcase-cat name)) ;; TODO Add Args here?
-      `(my-run-or-raise
-        ,(if args
-             (downcase-cat name " " args)
-             (downcase-cat name))
-        ',(append other-args
-                  `(:class ,(if class
-                                class
-                                (string-capitalize name)))))))
+    `(my-run-or-raise
+      ,(if args
+           (downcase-cat name " " args)
+         (downcase-cat name))
+      ',(append other-args
+                `(:class ,(if class
+                              class
+                            (string-capitalize name)))))))
 
-#+nil
+#++
 (progn
   (defapplication/command 'firefox nil nil nil nil)
   (defapplication/command 'firefox t nil nil nil)

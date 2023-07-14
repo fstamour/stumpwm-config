@@ -112,6 +112,9 @@
 %10c The windows' class, cropped to 10 characters
 |#
 
+;; default: (setf *window-format-by-class* "%m%n %c %s%50t")
+(setf *window-format-by-class* "^[^2%m%n^]^[^1%s^]%t")
+
 
 ;; Default is 60.
 (setf *mode-line-timeout* 1)

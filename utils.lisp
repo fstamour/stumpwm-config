@@ -67,3 +67,12 @@ function name like that."
 
 (defun systemctlp ()
   (not (guixp)))
+
+
+
+(defun sh (control-string &rest format-arguments)
+  "Run a command in a shell, wait for it, return its output as a list of lines (strings)."
+  (split-string
+   (run-shell-command (apply #' format nil
+                                control-string format-arguments)
+                      t)))

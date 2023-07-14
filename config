@@ -59,8 +59,7 @@
 (load-config* "utils"
               "mru"
               "defapplication"
-              ;; TODO move those scripts into this repository
-              ;; "audio" ;; currently using xbindkeys + shell scripts for this
+              "audio"
               "aesthetic"
               "modeline"
               "swank"

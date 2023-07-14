@@ -3,121 +3,134 @@
 
 (in-package #:stumpwmrc)
 
-(defun defapplication/docstring (name newp)
+;; TODO defclass application
+
+(defun defapplication/docstring (name type)
   "Generate the docstring for the command."
-  (if newp
-      (format nil "Starts a new instance of ~a." name)
-    (format nil "Start ~(~a~) or switch to it if already running." name)))
-
-(defun defapplication/message (name newp)
-  "Generate the message that is going to be shown when executing the command."
-  nil
-  #++ ; Testing something: Don't show a message
-  (if newp
-      `(message ,(format nil "Run a new instance of ~A" name))
-    `(message ,(format nil "Run or raise ~A" name))))
-
-(defun defapplication/docstring+message (name newp)
-  "Generate the message that is going to be shown when executing the command."
-  (list (defapplication/docstring name newp)
-        (defapplication/message name newp)))
-
-;; the original, before I split it in two
+  (format nil
+          (ecase type
+            (run-or-raise "Start ~(~a~) or switch to it if already running.")
+            (new "Starts a new instance of ~a.")
+            (windowlist "Select a window for a list of ~(~a~) windows."))
+          name))
 #++
-(defun defapplication/docstring+message (name newp)
-  "Generate the message that is going to be shown when executing the command."
-  (if newp
-      (list (cat "Starts a new instance of " name ".")
-            `(message ,(format nil "Run a new instance of ~A" name)))
-    (list
-     (cat "Start " (downcase-cat name)
-          " or switch to it if already running.")
-     `(message ,(format nil "Run or raise ~A" name)))))
+(list
+ (defapplication/docstring 'firefox 'run-or-raise)
+ (defapplication/docstring 'firefox 'new))
 
+;; TODO defapplication/run (for use at runtime
 
-#++
-(progn
-  (defapplication/docstring+message 'firefox nil)
-  (defapplication/docstring+message 'firefox t))
-
-(defun defapplication/command (name newp class args other-args)
+(defun defapplication/command (name type class args other-args)
   "
 other-args are passed to run-or-raise
       args are passed to the executable
 "
-  (if newp
-      `(run-shell-command ,(downcase-cat name)) ;; TODO Add Args here?
-    `(my-run-or-raise
-      ,(if args
-           (downcase-cat name " " args)
-         (downcase-cat name))
-      ',(append other-args
-                `(:class ,(if class
-                              class
-                            (string-capitalize name)))))))
+  (let ((class (or class (string-capitalize name))))
+    (ecase type
+      (run-or-raise
+       `(my-run-or-raise
+         ,(if args
+              (downcase-cat name " " args)
+              (downcase-cat name))
+         ',(append other-args `(:class ,class))))
+      (new `(run-shell-command ,(downcase-cat name)))
+      ;; WARNING: this is my fork of stumpwm's windowlist
+      (windowlist `(windowlist stumpwm:*window-format-by-class*
+                               nil :filter (lambda (window)
+                                             (and
+                                              (not (eq window (current-window)))
+                                              (string= (window-class window) ,class))))))))
 
 #++
-(progn
-  (defapplication/command 'firefox nil nil nil nil)
-  (defapplication/command 'firefox t nil nil nil)
-  (defapplication/command 'firefox nil "ff" nil nil)
-  (defapplication/command 'firefox t "ff" nil nil)
-  (defapplication/command 'firefox nil "ff" "-w" '("-a")))
+(list
+ (defapplication/command 'firefox 'run-or-raise nil nil nil)
+ (defapplication/command 'firefox 'new nil nil nil)
+ (defapplication/command 'firefox 'run-or-raise "ff" nil nil)
+ (defapplication/command 'firefox 'new "ff" nil nil)
+ (defapplication/command 'firefox 'run-or-raise "ff" "-w" '("-a")))
 
 (defun defapplication/bindings (bind command)
   (when bind
-    (let* ((listp (listp bind))
-           (map (if listp
-                    (ecase (car bind)
-                      (:top '*top-map*)
-                      (:root '*root-map*)
-                      (:app '*app-root-map*))
-                    '*app-root-map*))
-           (key (if listp (second bind) bind)))
-      `(define-key ,map (kbd ,key) ,(format nil "~(~a~)" command)))) )
+    `(define-key ,(case (first bind)
+                    (:top '*top-map*)
+                    (:root '*root-map*)
+                    (t (first bind)))
+         (kbd ,(second bind))
+       ,(format nil "~(~a~)" command))) )
 
-#+nil
-(progn
-  (defapplication/bindings '(:root "w") 'command)
-  (defapplication/bindings '(:top "c") 'command)
-  (defapplication/bindings '(:app "c") 'command)
-  (defapplication/bindings "c" 'command))
+#++
+(list
+ (defapplication/bindings '(:root "w") 'command)
+ (defapplication/bindings '(:top "c") 'command)
+ (defapplication/bindings '(*other-map* "c") 'command))
 
+;; TODO It would be nice to check if the command already exists, try
+;; to remove existing bindings
+;; TODO make it easy to specify multiple types
+;; TODO make it easy to specify mulitple bindings
+;; TODO maybe.. make it easy to specify multiple applications at the same time
 (defmacro defapplication (name
                           &rest rest
-                          &key args bind class command-name newp
+                          &key args bind class command-name (type 'run-or-raise)
+                          types
                           &allow-other-keys)
-  "A macro to define commands.
-Let's you easily define a new stumpwm command with some common behaviour, like \"run-or-raise\" and then bind the command
+  "A macro to define common commands.
 
-If the \"newp\" parameter is true, the command will show a message first saying that it's opening a new instance of the application even if one is already running. The stumpwm command will have the \"-new\" suffix.
+Let's you easily define, and optionally bind, a new stumpwm command with some common
+behaviour, like \"run-or-raise\".
 
-If the \"newp\" parameter is false \"run-or-raise\" will be called to open the application. The parameter \"class\" can be used to tweak the \"raise\" part.
+When type is 'NEW, the command will open a new instance of the
+application even if one is already running. The stumpwm command will
+have the \"-new\" suffix.
 
-The \"bind\" parameter can be either a key or a list.
-If it's a key, the binding will be added to the *app-root-map* map.
-If it's a list, it is expected to have the form (map-spec key)
-The \"map-spec\" can be either :top, :root, :app or the map itself.
+When TYPE is 'RUN-OR-RAISE, run-or-raise will be called to open the
+application.
+
+The parameter CLASS can be used to customize window
+matching (e.g. when the command calls run-or-raise).
+
+The BIND parameter, if specified, must be a list of two
+elements (MAP-SPEC KEY). MAP-SPEC can be either :top, :root, or the
+map itself.
 
 Some examples:
 
 (defapplication firefox :bind (:root \"w\"))
-(defapplication firefox :newp t :bind (:root \"W\"))
-(defapplication emacs :newp t :bind (:root \"E\"))
+(defapplication firefox :type new t :bind (:root \"W\"))
+(defapplication emacs :type new :bind (:root \"E\"))
 (defapplication termite :class \"Termite\" :bind (:root \"c\"))"
   (check-type name symbol)
+  (check-type type (member run-or-raise new windowlist))
+  (when (and type types)
+    (error "Only one of TYPE and TYPES can be specified at the same time"))
   ;; Some local variable
   (let ((other-args (remove-from-plist
-                     rest :args :bind :class :command-name :newp))
-        (command (symcat (or command-name name) (if newp '-new ""))))
+                     rest :args :bind :class :command-name :type))
+        (command (symcat (or command-name name) "-" type)))
     `(prog1
          ;; The command itself
          (defcommand ,command
-             () ()
-           ;; Docstring + Message
-           ,@(defapplication/docstring+message name newp)
-
-           ;; The run-shell-command OR run-or-raise.
-           ,(defapplication/command name newp class args other-args))
+                     () ()
+                     ;; Docstring
+                     ,(defapplication/docstring name type)
+                     ;; The actual code
+                     ,(defapplication/command name type class args other-args))
        ;; Bindings
        ,(defapplication/bindings bind command))))
+
+;; TODO find a better name ffs
+(defun parse-body (specifications)
+  (loop
+    :for rest = specifications :then (rest rest)
+    :for (k v) :on specifications
+    :while (keywordp k)
+    :append (list k v) :into common
+    :finally (return (values common (rest rest))))  )
+
+;; WIP
+(defmacro defapplication* (name &body specifications)
+  (multiple-value-bind (common specifications)
+      (parse-body specifications)
+    `(progn
+       ,@(loop :for spec :in specifications
+               :collect `(defapplication ,name ,@common ,@spec)))))

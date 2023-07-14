@@ -73,37 +73,32 @@
 
 ;;; Common applications
 
-(defapplication firefox :bind (:root "w") :class "firefox")
-(defapplication firefox :bind (:root "W") :newp t)
+(defapplication* firefox
+  :class "firefox"
+  (:bind (:root "w"))
+  (:type new :bind (:root "W"))
+  (:type windowlist :bind (:root "M-w")))
 
-(defapplication emacs :bind (:root "e"))
-(defapplication emacs :bind (:root "E") :newp t)
+(defapplication* emacs
+  (:bind (:root "e"))
+  (:type new :bind (:root "E"))
+  (:type windowlist :bind (:root "M-e")))
+
 (defapplication emacsclient :args "-c" :bind (:root "C-e"))
 
 (defapplication kitty :bind (:root "t") :class "kitty")
-(defapplication kitty :bind (:root "T") :newp t)
+(defapplication kitty :bind (:root "T") :type new)
 
 (defapplication anki :class "Anki" :bind (:root "a"))
 
 (defapplication code :bind (:root "v"))
-(defapplication code :bind (:root "V") :newp t)
+(defapplication code :bind (:root "V") :type new)
 
 (defapplication nautilus :bind (:top "s-e"))
-(defapplication nautilus :bind (:top "s-E") :newp t)
+(defapplication nautilus :bind (:top "s-E") :type new)
 
-
-;;; NumPad a.k.a. KeyPad (see *numpad-map*)
-
-#++ ;; Disabled (I have a streamdeck for that now!)
-(progn
-  ;; TODO (define-key *top-map* (kbd "KP_Left") "kitty")
-  (define-key *top-map* (kbd "KP_Left") "emacs")
-  (define-key *top-map* (kbd "KP_Home") "firefox") ;; KP_7
-  (defapplication teams :bind (:top "KP_Insert") :class "teams")
-  (define-key *top-map* (kbd "KP_Begin") "code")
-  (defapplication keepassxc :bind (:top "KP_Up")) ;; KP_8
-  ;; KP_9 is snippets
-  )
+(defapplication teams :class "teams")
+(defapplication keepassxc)
 
 
 ;;; DWIM scripts

@@ -38,7 +38,8 @@
 
 ;; Make the focus follow the mouse.
 ;; (setf *mouse-focus-policy* :sloppy)
-(setf *mouse-focus-policy* :ignore)
+;; (setf *mouse-focus-policy* :ignore)
+(setf *mouse-focus-policy* :click)
 
 ;; Don't jump between groups when switching apps
 (setf *run-or-raise-all-groups* nil)

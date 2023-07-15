@@ -120,12 +120,27 @@ Some examples:
 
 ;; TODO find a better name ffs
 (defun parse-body (specifications)
-  (loop
-    :for rest = specifications :then (rest rest)
-    :for (k v) :on specifications
-    :while (keywordp k)
-    :append (list k v) :into common
-    :finally (return (values common (rest rest))))  )
+  (if (keywordp (first specifications))
+      (loop
+        :for rest = specifications :then (rest rest)
+        :for (k v) :on specifications
+        :while (keywordp k)
+        :append (list k v) :into common
+        :finally (return (values common (rest rest))))
+      (values nil specifications)))
+
+#++
+(parse-body
+ `((:bind (:root "e"))
+   (:type new :bind (:root "E"))
+   (:type windowlist :bind (:root "M-e"))) )
+
+#++
+(parse-body
+ `(:class x
+          (:bind (:root "e"))
+          (:type new :bind (:root "E"))
+          (:type windowlist :bind (:root "M-e"))) )
 
 ;; WIP
 (defmacro defapplication* (name &body specifications)

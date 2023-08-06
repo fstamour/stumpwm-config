@@ -95,8 +95,9 @@ were "triggered" because of an invocation of "run-or-raise".
           *cycle* nil)))
 
 (defun on-destroy-window (win)
-  (setf *focus-history*
-        (delete win *focus-history*)))
+  (setf *focus-history* (delete win *focus-history*))
+  (when *cycle*
+    (setf (elements *cycle*) (delete win (elements *cycle*)))))
 
 (add-hook *focus-window-hook* 'on-focus-window)
 (add-hook *destroy-window-hook* 'on-destroy-window)
@@ -113,7 +114,6 @@ were "triggered" because of an invocation of "run-or-raise".
     (if (and cycle (equal criteria *last-criteria*))
         (progn
           (cycle-next cycle)
-          ;; TODO FIXME make sure the windows in the cycle still exists
           ;; TODO make sure that all matching windows are in the cycle
           ;; TODO I should use "matches" from below, and update the cycle accordingly
           (focus-window (cycle-get-current cycle) t))

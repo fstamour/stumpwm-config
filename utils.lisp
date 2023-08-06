@@ -70,9 +70,16 @@ function name like that."
 
 
 
+(defparameter *last-sh* nil
+  "For debugging purpposes only: keep information about the last time the function sh was called.
+Trace could be useful too (especially that this only keeps the last invocation.0")
+
 (defun sh (control-string &rest format-arguments)
   "Run a command in a shell, wait for it, return its output as a list of lines (strings)."
-  (split-string
-   (run-shell-command (apply #' format nil
-                                control-string format-arguments)
-                      t)))
+  (setf *last-sh* (list control-string format-arguments)) ; for debugging
+  (let* ((command (apply #' format nil control-string format-arguments))
+         (result (split-string (run-shell-command command t))))
+    (prog1 result
+      ;; More bebugging stuff
+      (setf (cdr (last *last-sh*))
+            (list command result)))))

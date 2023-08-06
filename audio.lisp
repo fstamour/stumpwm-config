@@ -66,14 +66,42 @@
 (define-key *top-map* (kbd "XF86AudioRaiseVolume") "volume-up")
 #++ (define-key *top-map* (kbd "XF86AudioMute") "mute-toggle")
 
+
+;;; Players
+
+;; playerctl -l : e.g. teams == "chromium.instance5105"
+(defun choose-player ()
+  "Return the first player that isn't ms teasm -_-"
+  (loop
+    :with pids = (split-string (first (sh "pidof teams")) " ")
+    :for player :in (sh "playerctl -l")
+    :unless (find-if (lambda (pid)
+                       (alexandria:ends-with-subseq pid player))
+                     pids)
+      :do (return player)))
+
+;; (choose-player)
+
+(defun call-with-player (fn)
+  (let ((player  (choose-player)))
+    (if player
+        (funcall fn player)
+        (message "No players found."))))
+
+(defun playerctl (command)
+  (call-with-player
+   (lambda (player)
+     (sh "playerctl ~a -p ~a" command player))))
+
+;;; TODO sh is synchronous, not sure if I want that...
 (defcommand music-toggle () ()
-  (run-shell-command "playerctl play-pause"))
+  (playerctl "play-pause"))
 
 (defcommand music-next () ()
-  (run-shell-command "playerctl next"))
+  (playerctl "next"))
 
 (defcommand music-prev () ()
-  (run-shell-command "playerctl prev"))
+  (playerctl "prev"))
 
 ;;
 ;; (define-key *top-map* (kbd "XF86AudioStop") "music-stop")
@@ -88,8 +116,3 @@
   (undefine-key *top-map* (kbd "XF86AudioStop"))
   (undefine-key *top-map* (kbd "XF86AudioNext"))
   (undefine-key *top-map* (kbd "XF86AudioPrev")))
-
-;; Filter out teams if possible
-#++
-(split-string
- (run-shell-command "playerctl -l" t))

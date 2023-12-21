@@ -52,8 +52,9 @@ were "triggered" because of an invocation of "run-or-raise".
 
 (defun cycle-next (cycle)
   "Move the cycle to the next element."
-  (setf (index cycle) (mod (1+ (index cycle))
-                           (length (elements cycle)))))
+  (unless (zerop (length (elements cycle)))
+    (setf (index cycle) (mod (1+ (index cycle))
+                             (length (elements cycle))))))
 
 (defun cycle-get-current (cycle)
   "Get the current element."

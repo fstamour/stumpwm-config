@@ -170,7 +170,7 @@
 ;;; Start-up
 
 ;; Create a few groups
-(mapcar #'gnewbg '("music" "chat" "workflow"))
+(mapcar #'gnewbg '("music" "workflow"))
 
 ;; on startup, open a terminal
 (when *initializing*

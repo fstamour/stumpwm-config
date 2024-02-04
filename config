@@ -65,7 +65,8 @@
               "modeline"
               "swank"
               "rofi"
-              "login")
+              "login"
+              "teams")
 
 (when (laptop-p)
   (load-config "laptop"))
@@ -99,7 +100,8 @@
 (defapplication nautilus :bind (:top "s-e"))
 (defapplication nautilus :bind (:top "s-E") :type new)
 
-(defapplication teams :class "teams")
+;; (defapplication teams :class "teams")
+
 (defapplication keepassxc)
 
 

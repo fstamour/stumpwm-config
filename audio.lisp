@@ -8,6 +8,12 @@
 ;; TODO check if playerctl, amixer, grep
 ;; TODO *alsa-device* and *alsa-control*
 
+;; (sh "echo $SHELL")
+;; => fish
+
+;; Check if "amixer" is available
+;; (sh "bash -c 'command -v ~a'" "amixer")
+
 (defun get-volume ()
   (let* ((device "pulse")
          (control "Master")
@@ -69,18 +75,45 @@
 
 ;;; Players
 
-;; playerctl -l : e.g. teams == "chromium.instance5105"
+
+
+(defparameter *player-filter* nil
+  "Function to filter out players when calling list-players.")
+
+(setf *player-filter*
+      (lambda (player)
+        ;; I only use chrome (chromium in fact) for MS Teams, which I
+        ;; don't want it considered as a player.
+        (alexandria:starts-with-subseq "chrom" player)))
+
+(defun list-players (&optional (filter *player-filter*))
+  #++(remove-if (lambda (player)
+                  (or (alexandria:emptyp player)
+                      (when *player-filter*
+                        (funcall *player-filter* player))))
+                (sh "playerctl -l"))
+  (remove-if (or filter (constantly nil))
+             (remove-if #'alexandria:emptyp (sh "playerctl -l"))))
+
+#++
+(list
+ (list-players)
+ (list-players nil))
+
+(defparameter *last-player* nil)
+
 (defun choose-player ()
   "Return the first player that isn't ms teasm -_-"
-  (loop
-    :with pids = (split-string (first (sh "pidof teams")) " ")
-    :for player :in (sh "playerctl -l")
-    :unless (find-if (lambda (pid)
-                       (alexandria:ends-with-subseq pid player))
-                     pids)
-      :do (return player)))
+  ;; TODO use *last-player*
+  (first (remove-if #'(lambda (player)
+                        (or (alexandria:emptyp player)
+                            (alexandria:starts-with-subseq "chrom" player)))
+                    (sh "playerctl -l"))))
 
 ;; (choose-player)
+
+;; TODO bind prefix-(kbd "XF86AudioNext") to next-player
+
 
 (defun call-with-player (fn)
   (let ((player  (choose-player)))

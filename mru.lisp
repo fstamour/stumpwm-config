@@ -50,15 +50,20 @@ were "triggered" because of an invocation of "run-or-raise".
     :accessor index))
   (:documentation "TODO"))
 
+(defun cycle-empty-p (cycle)
+  (or (null cycle)
+      (zerop (length (elements cycle)))))
+
 (defun cycle-next (cycle)
   "Move the cycle to the next element."
-  (unless (zerop (length (elements cycle)))
+  (unless (cycle-empty-p cycle)
     (setf (index cycle) (mod (1+ (index cycle))
                              (length (elements cycle))))))
 
 (defun cycle-get-current (cycle)
   "Get the current element."
-  (elt (elements cycle) (index cycle)))
+  (unless (cycle-empty-p cycle)
+    (elt (elements cycle) (index cycle))))
 
 (defmethod print-object ((cycle cycle) stream)
   "Print a cycle, showing its current index and the whole list."
@@ -112,7 +117,8 @@ were "triggered" because of an invocation of "run-or-raise".
                           (cycle *cycle*)
                           (criteria (list cmd props)))
   (let ((*inside-my-run-or-raise-p* t))
-    (if (and cycle (equal criteria *last-criteria*))
+    (if (and (not (cycle-empty-p cycle))
+             (equal criteria *last-criteria*))
         (progn
           (cycle-next cycle)
           ;; TODO make sure that all matching windows are in the cycle

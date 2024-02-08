@@ -66,6 +66,7 @@
               "modeline"
               "swank"
               "rofi"
+              "quicksearch"
               "login"
               "teams")
 
@@ -112,7 +113,6 @@
 
 (define-key *root-map* (kbd "C-v") "exec ~/bin/dwim select-vscode")
 (define-key *root-map* (kbd "C-t") "exec ~/bin/dwim select-tmux")
-(define-key *root-map* (kbd "q") "exec ~/bin/quicksearch")
 
 
 ;;; Key Bindings

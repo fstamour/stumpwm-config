@@ -83,6 +83,13 @@ Trace could be useful too (especially that this only keeps the last invocation.0
       ;; More bebugging stuff
       (setf (cdr (last *last-sh*))
             (list command result)))))
+
+(defun xdg-open (thing)
+  (uiop:run-program `("xdg-open" ,thing)
+                    :input nil
+                    :output '(:string :stripped t)
+                    :ignore-error-status t))
+
 
 
 (defgeneric window-class= (a b)
@@ -103,3 +110,44 @@ spaces and tabs."
    :max max
    :separator (or separator '(#\Newline))))
 
+
+
+(defun map-lines (path callback)
+  (alexandria:with-input-from-file (in path)
+    (loop
+      :for line = (read-line in nil nil)
+      :while line
+      :unless (or (alexandria:emptyp line)
+                  (char= #\# (char line 0)))
+        :do (funcall callback line))))
+
+(defmacro with-reading-lines ((path line) &body body)
+  `(map-lines
+    ,path
+    (lambda (,line) ,@body)))
+
+(defun map-tsv (path callback)
+  (with-reading-lines (path line)
+    (funcall callback (uiop:split-string line :separator '(#\Tab)))))
+
+(defmacro with-tsv ((path cells) &body body)
+  `(map-tsv ,path
+            (lambda (,cells)
+              ,@body)))
+
+(defmacro with-hash-table ((&optional destination) &body body)
+  (alexandria:with-gensyms (map)
+    `(let ((,map (or ,destination (make-hash-table :test 'equal))))
+       (flet
+           ;; TODO gensym fetch
+           ((fetch (k) (gethash k ,map))
+            ;; TODO gensym add
+            (add (k v)
+              (setf (gethash k ,map) v)))
+         (declare (ignorable #'fetch #'add))
+         ,@body
+         ,map))))
+
+#++
+(with-hash-table ()
+  (add :k 'value))

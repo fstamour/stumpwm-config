@@ -90,15 +90,14 @@ Tips for debugging:
  - :run-program-args '(:ignore-error-status t) to see the stdout and stderr"
   (let* ((form (if process-client-result
                    form
-                   ;; When form evaluated to something that has no
-                   ;; printable representation, server-eval-at signals
-                   ;; an error when trying to read the unreadable
-                   ;; representation. To avoid some headache, if the
-                   ;; user doesn't want to use the results (and only
-                   ;; evaluates something for the side-effects), then
-                   ;; we ask the client to simply return the symbol t
-                   ;; instead of whatever the form would have
-                   ;; returned.
+                   #| When FORM evaluates to something that has no
+printable representation, server-eval-at (in the emacs client) will
+signal an error when trying to read the unreadable representation.
+
+To avoid this, when the user doesn't need the results and only
+evaluates something for the side-effects, we make sure the emacs
+server to simply return the symbol t instead of whatever the form
+would have evaluated to. |#
                    `(progn ,form t)))
          (form (if inhibit-message
                    `(let ((inhibit-message t)) ,form)

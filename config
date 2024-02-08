@@ -60,6 +60,7 @@
 (load-config* "utils"
               "mru"
               "defapplication"
+              "emacs"
               "audio"
               "aesthetic"
               "modeline"

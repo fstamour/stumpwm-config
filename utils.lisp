@@ -83,3 +83,23 @@ Trace could be useful too (especially that this only keeps the last invocation.0
       ;; More bebugging stuff
       (setf (cdr (last *last-sh*))
             (list command result)))))
+
+
+(defgeneric window-class= (a b)
+  (:method ((w window) (class string))
+    (string= (window-class w) class))
+  (:method ((class string) (w window))
+    (string= (window-class w) class))
+  (:method ((w1 window) (w2 window))
+    (string= (window-class w1) (window-class w2))))
+
+
+
+(defun split-string* (string &key max (separator '(#\Newline)))
+  "Same as uiop:split-string, but split by newlines by default instead of
+spaces and tabs."
+  (uiop:split-string
+   string
+   :max max
+   :separator (or separator '(#\Newline))))
+

@@ -21,18 +21,18 @@
 (defcommand teams-run-or-raise () ()
   "Start teams or switch to it if already running."
   (let ((window (get-microsoft-teams-windows)))
-    (if windows
-        (let ((win (first windows)))
-          (focus-window win t))
+    (if window
+        (focus-window window t)
         (run-microsoft-teams))))
+
+
 
 #++
 (defcommand teams-toogle-mic () ()
-  "Send C-S-m to Microsoft Teams to toggle the microphone."
-  (let ((windows (list-microsoft-teams-windows)))
-    (if windows
-        (let* ((win (first windows))
-               (xwin (window-xwin win))
+  "Send C-M (Ctrl+Shift+m) to Microsoft Teams to toggle the microphone."
+  (let ((win (get-microsoft-teams-windows)))
+    (if win
+        (let* ((xwin (window-xwin win))
                (code 58)
                (state 21))
           (dolist (event '(:key-press :key-release))

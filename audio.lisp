@@ -77,23 +77,21 @@
 
 
 
-(defparameter *player-filter* nil
+(defparameter *player-filters* nil
   "Function to filter out players when calling list-players.")
 
-(setf *player-filter*
-      (lambda (player)
-        ;; I only use chrome (chromium in fact) for MS Teams, which I
-        ;; don't want it considered as a player.
-        (alexandria:starts-with-subseq "chrom" player)))
+(setf *player-filters*
+      (list
+       (lambda (player)
+         ;; I only use chrome (chromium in fact) for MS Teams, which I
+         ;; don't want it considered as a player.
+         (alexandria:starts-with-subseq "chrom" player))))
 
-(defun list-players (&optional (filter *player-filter*))
-  #++(remove-if (lambda (player)
-                  (or (alexandria:emptyp player)
-                      (when *player-filter*
-                        (funcall *player-filter* player))))
-                (sh "playerctl -l"))
-  (remove-if (or filter (constantly nil))
-             (remove-if #'alexandria:emptyp (sh "playerctl -l"))))
+(defun list-players (&optional (filters *player-filters*))
+  (remove-if (lambda (p)
+               (some (lambda (f) (funcall f p))
+                     (append filters (list #'alexandria:emptyp))))
+             (sh "playerctl -l")))
 
 #++
 (list
@@ -105,10 +103,7 @@
 (defun choose-player ()
   "Return the first player that isn't ms teasm -_-"
   ;; TODO use *last-player*
-  (first (remove-if #'(lambda (player)
-                        (or (alexandria:emptyp player)
-                            (alexandria:starts-with-subseq "chrom" player)))
-                    (sh "playerctl -l"))))
+  (first (list-players)))
 
 ;; (choose-player)
 
@@ -116,7 +111,7 @@
 
 
 (defun call-with-player (fn)
-  (let ((player  (choose-player)))
+  (let ((player (choose-player)))
     (if player
         (funcall fn player)
         (message "No players found."))))

@@ -14,6 +14,8 @@
 
 
 (defun print-string-for-emacs (stream string)
+  "Like prin1, but with don't double backslashes used for escaping
+characters in emacs."
   (write-char #\" stream)
   (loop
     :with length = (length string)
@@ -36,6 +38,7 @@
   (write-char #\" stream))
 
 (defun print-pathname-for-emacs (stream pathname)
+  "Print a pathname without the #p reader macro."
   (write (namestring pathname) :stream stream))
 
 (defun make-emacs-pprint-dispatch ()
@@ -45,12 +48,15 @@
     *print-pprint-dispatch*))
 
 (defun print-for-emacs (form)
+  "Print FORM into a string, in a way that's it can be read back by
+emacs."
   ;; TODO don't compute the dispatch table every time
   (let ((*print-pprint-dispatch* (make-emacs-pprint-dispatch))
         (*print-case* :downcase))
     (prin1-to-string form)))
 
 (defun test-print-for-emacs (form expected-string)
+  "Test the function PRINT-FOR-EMACS"
   (let ((got (print-for-emacs form)))
     (values (string= got expected-string) got)))
 
@@ -79,25 +85,33 @@
 split. Signals an error if the emacs process exited with a non-zero
 status.
 
-FORM, PROCESS-RESULT and INHIBIT-MESSAGE are used to compute the form
+FORM, PROCESS-CLIENT-RESULT and INHIBIT-MESSAGE are used to compute the form
 sent to emacs.
 
 RUN-PROGRAM-ARGS, EMACS-EXTRA-ARGS and SPLIT-STRING-ARGS controls how
 the process is called and it's result transformed.
 
+If FOCUSP is true, then emacs will be raised after the the call is
+done.
+
 Tips for debugging:
  - don't inhibit-message, look in *Message* buffer
- - :run-program-args '(:ignore-error-status t) to see the stdout and stderr"
+ - :run-program-args '(:ignore-error-status t) to see the stdout and
+   stderr (or just use the \"continue\" restart)"
   (let* ((form (if process-client-result
                    form
-                   #| When FORM evaluates to something that has no
-printable representation, server-eval-at (in the emacs client) will
-signal an error when trying to read the unreadable representation.
+                   #|
+
+When FORM evaluates to something that has no printable representation,
+server-eval-at (in the emacs client) will signal an error when trying
+to read the unreadable representation.
 
 To avoid this, when the user doesn't need the results and only
 evaluates something for the side-effects, we make sure the emacs
 server to simply return the symbol t instead of whatever the form
-would have evaluated to. |#
+would have evaluated to.
+
+|#
                    `(progn ,form t)))
          (form (if inhibit-message
                    `(let ((inhibit-message t)) ,form)

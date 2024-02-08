@@ -3,11 +3,11 @@
 
 #|
 
-Work in progress: trying to keep some kind of history, so that
-run-or-raise raises the most recently used window first and then cycle
-through in chronological order if called repeatedly.
+Trying to keep some kind of history, so that run-or-raise raises the
+most recently used window first and then cycle through in
+chronological order if called repeatedly.
 
-I use two hooks to keep an list of windows in the Mort Recently
+I use two hooks to keep an list of windows in the Most Recently
 Used (focused) order (hence the name of the file, mru.lisp).
 
 *focus-window-hook* is called when a window is given focus. It is
@@ -111,6 +111,7 @@ were "triggered" because of an invocation of "run-or-raise".
 
 ;;; Putting it all together
 
+;; TODO find a better name, it really is more of a "run-or-raise-of-cycle" ~ dwim
 (defun my-run-or-raise (cmd props &optional (all-groups *run-or-raise-all-groups*)
                                     (all-screens *run-or-raise-all-screens*)
                         &aux

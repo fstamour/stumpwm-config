@@ -35,9 +35,13 @@
             (emacs-list-repositories))))
 
 (defun list-choices ()
-  (read-bookmarks (bookmarks-path)
-                  (read-searches (searches-path)
-                                 (get-repositories))))
+  (let ((choices (make-hash-table :test 'equal)))
+    (with-hash-table (choices)
+      (add "Open searches" (list :path (namestring (searches-path))))
+      (add "Open bookmarks" (list :path (namestring (bookmarks-path))))
+      (read-bookmarks (bookmarks-path) choices)
+      (read-searches (searches-path) choices)
+      (get-repositories choices))))
 
 ;; (time (list-choices))
 
@@ -81,7 +85,8 @@
        (case type
          (:url (xdg-open value))
          (:search (handle-search user-input value extra))
-         (:repo (handle-repo user-input))))
+         (:repo (handle-repo user-input))
+         (:path (emacs-find-file value))))
       ((probe-file user-input) (emacs-find-file user-input))
       (t (error "quicksearch: don't know how to handle ~s"
                 (list :user-input user-input

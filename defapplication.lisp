@@ -35,7 +35,7 @@ other-args are passed to run-or-raise
          ',(append other-args `(:class ,class))))
       (new `(run-shell-command ,(downcase-cat name)))
       ;; WARNING: this is my fork of stumpwm's windowlist
-      (windowlist `(windowlist stumpwm:*window-format-by-class*
+      (windowlist `(windowlist stumpwm::*window-format-by-class*
                                nil :filter (lambda (window)
                                              (and
                                               (not (eq window (current-window)))

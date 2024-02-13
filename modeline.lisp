@@ -113,7 +113,8 @@
 |#
 
 ;; default: (setf *window-format-by-class* "%m%n %c %s%50t")
-(setf *window-format-by-class* "^[^2%m%n^]^[^1%s^]%t")
+;; TODO This should be public
+(setf stumpwm::*window-format-by-class* "^[^2%m%n^]^[^1%s^]%t")
 
 
 ;; Default is 60.

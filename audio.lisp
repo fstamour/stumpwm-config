@@ -14,31 +14,62 @@
 ;; Check if "amixer" is available
 ;; (sh "bash -c 'command -v ~a'" "amixer")
 
-(defun get-volume ()
-  (let* ((device "pulse")
-         (control "Master")
-         ;; command-output is a list of lines, the grep keeps only the
-         ;; percentages. For example, if you have 2 "outputs" Left and
-         ;; Right, both at 40% the list will be '(40 40).
-         (command-output
-           (sh
-            "amixer --device ~a  get ~a | grep -Po \"[0-9]+(?=%)\""
-            device
-            control))
+#++
+(progn
+  (defparameter *last-sh* nil
+    "For debugging purpposes only: keep information about the last time the function sh was called.
+Trace could be useful too (especially that this only keeps the last invocation.0")
+
+  (defun sh (control-string &rest format-arguments)
+    "Run a command in a shell, wait for it, return its output as a list of lines (strings)."
+    (setf *last-sh* (list control-string format-arguments)) ; for debugging
+    (let* ((command (apply #' format nil control-string format-arguments))
+           (result (uiop:split-string
+                    #++ (run-shell-command command t)
+                    (uiop:run-program
+                     command
+                     :output '(:string :stripped t))
+                    :separator '(#\Newline))))
+      (prog1 result
+        ;; More bebugging stuff
+        (setf (cdr (last *last-sh*))
+              (list command result)))))
+
+  (let ((sink (car (sh "pactl get-default-sink"))))
+    (sh "pactl get-sink-volume ~a" sink))
+
+  (first '("Volume: front-left: 34025 /  52% / -17.08 dB,   front-right: 34025 /  52% / -17.08 dB"
+           "        balance 0.00"))
+
+  (let ((line "Volume: front-left: 34025 /  52% / -17.08 dB,   front-right: 34025 /  52% / -17.08 dB"))
+    (parse-integer line :start (1+ (position #\/ line)) :junk-allowed t)))
+
+(defun get-output ()
+  (sh "pactl get-default-sink"))
+
+(defun get-volume (&optional sink)
+  (let* ((sink (or sink
+                   (car (sh "pactl get-default-sink"))))
+         (command-output (sh "pactl get-sink-volume ~a" sink))
          (volume-string (first command-output)))
     (when volume-string
-      (parse-integer volume-string :junk-allowed t))))
+      (parse-integer volume-string
+                     :start (1+ (position #\/ volume-string))
+                     :junk-allowed t))))
 
 #++ (run-shell-command "amixer --device pulse get Master" t)
+
+#++
+(let ((sink (car )))
+  (sh "pactl set-sink-volume ~a +5%" sink))
 
 (defun set-volume (volume)
   ;; TODO validate volume
   ;; TODO pass device and control
   ;; TODO support jack?
-  (let* ((device "pulse")
-         (control "Master"))
-    (sh "amixer --device ~a sset ~a ~d" device control volume)
-    (get-volume)))
+  (let* ((sink (car (sh "pactl get-default-sink"))))
+    (sh "pactl set-sink-volume ~a ~a" sink volume)
+    (get-volume sink)))
 
 (defun show-volume (&optional volume)
   (let ((volume (or volume (get-volume))))
@@ -47,11 +78,11 @@
         (message "Failed to get the current volume"))))
 
 (defcommand volume-up (&optional (step 2)) ()
-  (set-volume (format nil "~d%+" step))
+  (set-volume (format nil "+~d%" step))
   (show-volume))
 
 (defcommand volume-down (&optional (step 2)) ()
-  (set-volume (format nil "~d%-" step))
+  (set-volume (format nil "-~d%" step))
   (show-volume))
 
 #++

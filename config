@@ -48,6 +48,12 @@
 ;; ^^^ NOT TESTED, I'm on my laptop ATM.
 (setf *run-or-raise-all-screens* nil)
 
+;; Stop stealing my damn focus!
+(setf *deny-raise-requests* t)
+;; see also *suppress-deny-messages* and *deny-map-request*
+
+;; TODO (push -new? '(:class "emacs") stumpwm:*deny-raise-request*)
+
 
 ;;; Loading other files
 

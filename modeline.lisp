@@ -67,7 +67,8 @@
 ;; The colors must be set before enabling the mode line
 (setf *mode-line-foreground-color* "palegreen" ; Default is Gray50
       *mode-line-background-color* "Black")    ; Default is Gray20
-(enable-mode-line-eveywhere)
+
+;; (enable-mode-line-eveywhere)
 ;; (restart-mode-line-eveywhere)
 
 

@@ -103,7 +103,9 @@ were "triggered" because of an invocation of "run-or-raise".
 (defun on-destroy-window (win)
   (setf *focus-history* (delete win *focus-history*))
   (when *cycle*
-    (setf (elements *cycle*) (delete win (elements *cycle*)))))
+    (setf (elements *cycle*) (delete win (elements *cycle*)))
+    (when (cycle-empty-p *cycle*)
+      (setf *cycle* nil))))
 
 (add-hook *focus-window-hook* 'on-focus-window)
 (add-hook *destroy-window-hook* 'on-destroy-window)

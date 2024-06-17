@@ -112,6 +112,13 @@
 
 (defapplication keepassxc)
 
+(defcommand zotero-run-or-raise () ()
+  (run-or-raise "flatpak run org.zotero.Zotero" '(:class "Zotero")))
+(define-key *root-map* (kbd "z") "zotero-run-or-raise")
+
+;; "com.valvesoftware.Steam"
+;; "net.ankiweb.Anki"
+
 
 ;;; DWIM scripts
 

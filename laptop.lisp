@@ -1,7 +1,7 @@
 
 (in-package #:stumpwmrc)
 
-#-freebsd
+#++
 (let ((script
         (merge-pathnames
          "nvidia-backlight-brightness.sh" *load-pathname*)))
@@ -10,16 +10,13 @@
   (defcommand brightness-down () ()
     (run-shell-command (format nil "~a down" script))))
 
-
-#+freebsd
 (defcommand brightness-up () ()
   (message "more light!")
-  (run-shell-command "xbacklight -inc 10"))
+  (run-shell-command "/run/current-system/profile/bin/xbacklight -inc 10"))
 
-#+freebsd
 (defcommand brightness-down () ()
   (message "more darkness!")
-  (run-shell-command "xbacklight -dec 10"))
+  (run-shell-command "/run/current-system/profile/bin/xbacklight -dec 10"))
 
 (define-key *top-map* (kbd  "XF86MonBrightnessUp") "brightness-up")
 (define-key *top-map* (kbd  "XF86MonBrightnessDown") "brightness-down")
@@ -35,3 +32,7 @@
 ;; a Lenovo (same company), they might be using the same "trick".
 ;; There's a "acpi_ibm.ko" kernel module, but I don't feel like trying
 ;; it right now...
+;;
+;;
+;; 2024-08-11 My laptop, that now has had guix on it for over a year,
+;; works with xbacklight, not nvidia-backlight-brightness.sh

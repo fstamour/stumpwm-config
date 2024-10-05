@@ -31,6 +31,9 @@ used window that matches. Long story short, I use a dynamic variable
 *inside-my-run-or-raise-p* to detect whether the hooks
 were "triggered" because of an invocation of "run-or-raise".
 
+;; 2024-07-03 I found someone who made something very similar:
+;; https://github.com/tslight/stumpwm/blob/main/modules/cycle-mru/cycle-mru.lisp
+
 |#
 
 
@@ -147,3 +150,53 @@ were "triggered" because of an invocation of "run-or-raise".
           (if win
               (focus-window win t)
               (run-or-raise cmd props all-groups all-screens))))))
+
+#++ ;; Select a window from the current cycle
+(defcommand wip () ()
+  (stumpwm::select-window-from-menu (elements *cycle*) "%m%n%s%50t"))
+
+#++
+(completing-read (current-screen)
+                 "Choose:"
+                 '("abc" "bcd" "cde"))
+
+#++
+(mapcar (lambda (win)
+          (cons win (window-title win)))
+        (elements *cycle*))
+
+
+
+#++ ;; Like "my-run-or-raise", but only raise
+(defun raise-window-dwim (cmd props &optional (all-groups *run-or-raise-all-groups*)
+                                      (all-screens *run-or-raise-all-screens*)
+                          &aux
+                            (cycle *cycle*)
+                            (criteria (list cmd props)))
+  (let ((*inside-my-run-or-raise-p* t))
+    (if (and (not (cycle-empty-p cycle))
+             (equal criteria *last-criteria*))
+        (progn
+          (cycle-next cycle)
+          ;; TODO make sure that all matching windows are in the cycle
+          ;; TODO I should use "matches" from below, and update the cycle accordingly
+          (focus-window (cycle-get-current cycle) t))
+        (let* ((current-window (current-window))
+               (matches (stumpwm::find-matching-windows props all-groups all-screens))
+               (matches-in-history (remove-if-not
+                                    #'(lambda (win) (member win matches))
+                                    (rest *focus-history*)))
+               ;; other-matches is list of matches "after" the current
+               ;; win, if current win matches. getting 2nd element means
+               ;; skipping over the current win, to cycle through matches
+               (other-matches (member current-window matches))
+               (win (if (> (length other-matches) 1)
+                        (second other-matches)
+                        (first (or matches-in-history matches)))))
+          (setf *last-criteria* criteria)
+          (when win
+            (setf *cycle* (make-instance 'cycle
+                                         :elements matches
+                                         :index (position win matches)))
+            (focus-window win t)
+            win)))))

@@ -1,5 +1,8 @@
 ;; 2022-11-11 I noticed the macro defprogram-shortcut was added, I
 ;; might be able to replace this macro with something built-in.
+;;
+;; 2024-10-05 Actually, no, I can't replace it because I'm using
+;; "my-run-or-raise"
 
 (in-package #:stumpwmrc)
 
@@ -16,11 +19,12 @@
 #++
 (list
  (defapplication/docstring 'firefox 'run-or-raise)
- (defapplication/docstring 'firefox 'new))
+ (defapplication/docstring 'firefox 'new)
+ (defapplication/docstring 'firefox 'windowlist))
 
-;; TODO defapplication/run (for use at runtime
+;; TODO defapplication/run (for use at runtime)
 
-(defun defapplication/command (name type class args other-args)
+(defun defapplication/command (name type #| TODO &key run-command |# class args other-args)
   "
 other-args are passed to run-or-raise
       args are passed to the executable
@@ -49,7 +53,9 @@ other-args are passed to run-or-raise
  (defapplication/command 'firefox 'new "ff" nil nil)
  (defapplication/command 'firefox 'run-or-raise "ff" "-w" '("-a")))
 
+;; TODO I think this could be a function
 (defun defapplication/bindings (bind command)
+  "Macro to create a binding for command"
   (when bind
     `(define-key ,(case (first bind)
                     (:top '*top-map*)
@@ -66,13 +72,16 @@ other-args are passed to run-or-raise
 
 ;; TODO It would be nice to check if the command already exists, try
 ;; to remove existing bindings
-;; TODO make it easy to specify multiple types
-;; TODO make it easy to specify mulitple bindings
-;; TODO maybe.. make it easy to specify multiple applications at the same time
 (defmacro defapplication (name
                           &rest rest
-                          &key args bind class command-name (type 'run-or-raise)
-                          types
+                          &key
+                            args
+                            bind
+                            class
+                            command-name
+                            (type 'run-or-raise)
+                            ;; TODO run-command
+                            types
                           &allow-other-keys)
   "A macro to define common commands.
 
@@ -110,30 +119,31 @@ Some examples:
     `(prog1
          ;; The command itself
          (defcommand ,command
-                     () ()
-                     ;; Docstring
-                     ,(defapplication/docstring name type)
-                     ;; The actual code
-                     ,(defapplication/command name type class args other-args))
+             () ()
+           ;; Docstring
+           ,(defapplication/docstring name type)
+           ;; The actual code
+           ,(defapplication/command name type class args other-args))
        ;; Bindings
        ,(defapplication/bindings bind command))))
 
 ;; TODO find a better name ffs
 (defun parse-body (specifications)
-  (if (keywordp (first specifications))
-      (loop
-        :for rest = specifications :then (rest rest)
-        :for (k v) :on specifications
-        :while (keywordp k)
-        :append (list k v) :into common
-        :finally (return (values common (rest rest))))
-      (values nil specifications)))
+  (loop
+    :for rest = specifications :then (cddr rest)
+    :for (k v) := rest
+    :while (keywordp k)
+    :append (list k v) :into common
+    :finally (return (values common rest))))
 
 #++
 (parse-body
  `((:bind (:root "e"))
    (:type new :bind (:root "E"))
-   (:type windowlist :bind (:root "M-e"))) )
+   (:type windowlist :bind (:root "M-e"))))
+;; => NIL,
+;; ((:BIND (:ROOT "e")) (:TYPE NEW :BIND (:ROOT "E"))
+;;                      (:TYPE WINDOWLIST :BIND (:ROOT "M-e")))
 
 #++
 (parse-body
@@ -141,6 +151,20 @@ Some examples:
           (:bind (:root "e"))
           (:type new :bind (:root "E"))
           (:type windowlist :bind (:root "M-e"))) )
+;; (:CLASS X)
+;; ((:BIND (:ROOT "e")) (:TYPE NEW :BIND (:ROOT "E"))
+;;                      (:TYPE WINDOWLIST :BIND (:ROOT "M-e")))
+
+#++
+(parse-body
+ `(:class x
+   :run-command "exec sh -c \"some weird command\""
+          (:bind (:root "e"))
+          (:type new :bind (:root "E"))
+          (:type windowlist :bind (:root "M-e"))))
+;; (:CLASS X :RUN-COMMAND "exec sh -c \"some weird command\"")
+;; ((:BIND (:ROOT "e")) (:TYPE NEW :BIND (:ROOT "E"))
+;;                      (:TYPE WINDOWLIST :BIND (:ROOT "M-e")))
 
 ;; WIP
 (defmacro defapplication* (name &body specifications)

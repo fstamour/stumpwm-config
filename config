@@ -105,6 +105,10 @@
   (:type new :bind (:root "V"))
   (:type windowlist :bind (:root "M-v")))
 
+;; hack to have some env var setup by fish
+(defcommand code+shell () ()
+  (run-commands "exec fish -c code"))
+
 (defapplication nautilus :bind (:top "s-e"))
 (defapplication nautilus :bind (:top "s-E") :type new)
 
@@ -123,9 +127,7 @@
 ;;; DWIM scripts
 
 ;; TODO Move those scripts into this repository
-
-(define-key *root-map* (kbd "C-v") "exec ~/bin/dwim select-vscode")
-(define-key *root-map* (kbd "C-t") "exec ~/bin/dwim select-tmux")
+;; (define-key *root-map* (kbd "C-t") "exec ~/bin/dwim select-tmux")
 
 
 ;;; Key Bindings

@@ -1,6 +1,13 @@
 ;;;; N.B. This doesn't _need_ to reside in stumpwm, it's just more
 ;;;; convenient than having some kind of deamon.
 
+
+#|
+
+TODO Snippets?
+
+|#
+
 (in-package #:stumpwmrc)
 
 (defun read-bookmarks (path &optional destination)
@@ -26,7 +33,7 @@
 
 ;; TODO put "searches" into $XDG_DATA_HOME
 (defun searches-path ()
-  (merge-pathnames "dev/meta/dotfiles/data/searches2" (user-homedir-pathname)))
+  (merge-pathnames "dev/meta/dotfiles/data/searches" (user-homedir-pathname)))
 
 (defun get-repositories (&optional destination)
   (with-hash-table (destination)
@@ -58,6 +65,10 @@
                     - open in new terminal
                     - open with projectile (will select a file with projectile)
                     - open the upstream remote's in its forge.
+                    - create new issue for this project
+                    - search issues
+                    - open MRs
+                    - open pipelines
                     |#))
          (action (choose (list :alist choices)
                          :prompt (format nil "What do you want to do with the repo ~s?" pathname))))

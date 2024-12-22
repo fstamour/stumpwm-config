@@ -127,6 +127,9 @@
 
 ;; "com.valvesoftware.Steam"
 
+(defcommand steam-run-or-raise () ()
+            (run-or-raise "flatpak run com.valvesoftware.Steam" '(:class "Steam")))
+
 
 ;;; DWIM scripts
 

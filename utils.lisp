@@ -85,10 +85,11 @@ Trace could be useful too (especially that this only keeps the last invocation.0
             (list command result)))))
 
 (defun xdg-open (thing)
-  (uiop:run-program `("xdg-open" ,thing)
-                    :input nil
-                    :output '(:string :stripped t)
-                    :ignore-error-status t))
+  (uiop:launch-program `("xdg-open" ,thing)
+                       ;; :input nil
+                       ;; :output *query-io* ;; '(:string :stripped t)
+                       ;; :ignore-error-status t
+                       ))
 
 
 

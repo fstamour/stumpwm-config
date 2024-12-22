@@ -95,8 +95,18 @@ were "triggered" because of an invocation of "run-or-raise".
 
 ;;; Hooks
 
+;; (print 'x *trace-output*)
+
+(trace on-focus-window on-destroy-window)
+(trace cycle-empty-p)
+(trace my-run-or-raise)
+
+(defparameter *the-current-trace-output* *trace-output*)
+
 (defun on-focus-window (new old)
-  (declare (ignore old))
+  ;; N.B. old is nil when the previous window was killed
+  (declare (ignorable old))
+  (format *the-current-trace-output* "~&on focus - new: ~a old: ~a" new old)
   (setf *focus-history* (delete new *focus-history* :count 1))
   (push new *focus-history*)
   (unless *inside-my-run-or-raise-p*
@@ -104,11 +114,13 @@ were "triggered" because of an invocation of "run-or-raise".
           *cycle* nil)))
 
 (defun on-destroy-window (win)
+  (format *the-current-trace-output* "~&on destroy BEFORE~%  win: ~a ~%  history: ~a ~%  cycle: ~a" win *focus-history* *cycle*)
   (setf *focus-history* (delete win *focus-history*))
   (when *cycle*
     (setf (elements *cycle*) (delete win (elements *cycle*)))
     (when (cycle-empty-p *cycle*)
-      (setf *cycle* nil))))
+      (setf *cycle* nil)))
+  (format *the-current-trace-output* "~&on destroy AFTER~%  win: ~a ~%  history: ~a ~%  cycle: ~a" win *focus-history* *cycle*))
 
 (add-hook *focus-window-hook* 'on-focus-window)
 (add-hook *destroy-window-hook* 'on-destroy-window)

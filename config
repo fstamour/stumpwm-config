@@ -98,7 +98,12 @@
 (defapplication kitty :bind (:root "t") :class "kitty")
 (defapplication kitty :bind (:root "T") :type new)
 
-(defapplication anki :class "Anki" :bind (:root "a"))
+;; (defapplication anki :class "Anki" :bind (:root "a"))
+;;
+
+(defcommand anki-run-or-raise () ()
+  (run-or-raise "QT_XCB_GL_INTEGRATION=none anki" '(:class "Anki")))
+(define-key *root-map* (kbd "a") "anki-run-or-raise")
 
 (defapplication* code
   (:bind (:root "v"))
@@ -121,7 +126,6 @@
 (define-key *root-map* (kbd "z") "zotero-run-or-raise")
 
 ;; "com.valvesoftware.Steam"
-;; "net.ankiweb.Anki"
 
 
 ;;; DWIM scripts

@@ -33,6 +33,16 @@
 ;; Use "Shift-menu" to send the prefix key (menu)
 (define-key *top-map* (menu-key "S-~A") "send-escape")
 
+;; I don't want the default "Prefix-k" to close windows, it's too easy
+;; to type by accident, and I want to use it for run-or-raise
+;; keepassxc
+(define-key *root-map* (kbd "M-F4") "delete")
+
+(define-key *root-map* (kbd "k") nil)
+(define-key stumpwm::*group-root-map* (kbd "k") nil)
+
+;;(describe-key (list (kbd "Menu") (kbd "k")))
+
 
 ;;; Configuring behaviours
 
@@ -119,7 +129,8 @@
 
 ;; (defapplication teams :class "teams")
 
-(defapplication keepassxc)
+(defapplication keepassxc
+  :bind (:root "k"))
 
 (defcommand zotero-run-or-raise () ()
   (run-or-raise "flatpak run org.zotero.Zotero" '(:class "Zotero")))

@@ -37,6 +37,8 @@
 ;; to type by accident, and I want to use it for run-or-raise
 ;; keepassxc
 (define-key *root-map* (kbd "M-F4") "delete")
+(define-key *root-map* (kbd "K") "delete")
+(define-key *root-map* (kbd "C-M-F4") "kill") ; ≈ kill -9
 
 (define-key *root-map* (kbd "k") nil)
 (define-key stumpwm::*group-root-map* (kbd "k") nil)

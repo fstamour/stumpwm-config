@@ -78,13 +78,11 @@
 (load-config* "utils"
               "mru"
               "defapplication"
-              "emacs"
               "audio"
               "aesthetic"
               "modeline"
               "swank"
               "rofi"
-              "quicksearch"
               "login"
               "teams")
 

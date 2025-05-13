@@ -2,7 +2,6 @@
 (in-package #:stumpwmrc)
 
 ;;; Some string munching utilities
-;;; TODO I'm not even sure if I still use these
 (eval-when (:execute :load-toplevel :compile-toplevel)
   (export
    (defun cat (&rest rest)
@@ -84,13 +83,6 @@ Trace could be useful too (especially that this only keeps the last invocation.0
       (setf (cdr (last *last-sh*))
             (list command result)))))
 
-(defun xdg-open (thing)
-  (uiop:launch-program `("xdg-open" ,thing)
-                       ;; :input nil
-                       ;; :output *query-io* ;; '(:string :stripped t)
-                       ;; :ignore-error-status t
-                       ))
-
 
 
 (defgeneric window-class= (a b)
@@ -100,55 +92,3 @@ Trace could be useful too (especially that this only keeps the last invocation.0
     (string= (window-class w) class))
   (:method ((w1 window) (w2 window))
     (string= (window-class w1) (window-class w2))))
-
-
-
-(defun split-string* (string &key max (separator '(#\Newline)))
-  "Same as uiop:split-string, but split by newlines by default instead of
-spaces and tabs."
-  (uiop:split-string
-   string
-   :max max
-   :separator (or separator '(#\Newline))))
-
-
-
-(defun map-lines (path callback)
-  (alexandria:with-input-from-file (in path)
-    (loop
-      :for line = (read-line in nil nil)
-      :while line
-      :unless (or (alexandria:emptyp line)
-                  (char= #\# (char line 0)))
-        :do (funcall callback line))))
-
-(defmacro with-reading-lines ((path line) &body body)
-  `(map-lines
-    ,path
-    (lambda (,line) ,@body)))
-
-(defun map-tsv (path callback)
-  (with-reading-lines (path line)
-    (funcall callback (uiop:split-string line :separator '(#\Tab)))))
-
-(defmacro with-tsv ((path cells) &body body)
-  `(map-tsv ,path
-            (lambda (,cells)
-              ,@body)))
-
-(defmacro with-hash-table ((&optional destination) &body body)
-  (alexandria:with-gensyms (map)
-    `(let ((,map (or ,destination (make-hash-table :test 'equal))))
-       (flet
-           ;; TODO gensym fetch
-           ((fetch (k) (gethash k ,map))
-            ;; TODO gensym add
-            (add (k v)
-              (setf (gethash k ,map) v)))
-         (declare (ignorable #'fetch #'add))
-         ,@body
-         ,map))))
-
-#++
-(with-hash-table ()
-  (add :k 'value))

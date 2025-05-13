@@ -1,5 +1,8 @@
 ;; -*-lisp-*-
 ;;;;
+;;;; 2024-12-27 I'm now using guix to build stumpwm with swank already
+;;;; included in the image.
+;;;;
 ;;;; http://www.emacswiki.org/emacs/StumpWM
 ;;;;
 ;;;; I can't load swank with stumpwm from nix, because sbcl-cltl2 is
@@ -8,32 +11,18 @@
 
 (in-package #:stumpwmrc)
 
-(defparameter +slime-submodule+ "~/.config/stumpwm/slime/")
+(require "swank")
 
 (defvar *swank-p* nil
   "Flag if swank is started or not")
 
-(defun function-available-p (package-designator symbol-name)
-  (let* ((package (find-package package-designator))
-         (symbol (and package (find-symbol symbol-name package))))
-    (list
-     :package package
-     :symbol symbol
-     :fboundp (and symbol (fboundp symbol)))))
+;; swank::*emacs-connection*
 
-
-(defun swank-available-p ()
-  "Test if the swank package is available"
-  (unless
-      (find-package '#:sb-cltl2)
-    (error "Can't find the package SB-CLTL2 require to load swank."))
-  (function-available-p '#:swank "CREATE-SERVER"))
+;; (swank:connection-info)
 
 (defun swank-started-p ()
   ""
   (and
-   ;; loaded but not started
-   (swank-available-p)
    (or
     ;; already started
     *swank-p*
@@ -41,6 +30,7 @@
     (ignore-errors
      (uiop:symbol-call :swank :connection-info)))))
 
+#++
 (defun load-swank-from (slime-root)
   (unless (swank-started-p)
     ;; TODO Check if slime-root exists
@@ -65,10 +55,12 @@
            (message "Failed to load system definition ~s (using asdf:load-asd)." swank-asd)))
       (message "Failed to load swank system using asdf." swank-asd))))
 
+#++
 (unless (probe-file +slime-submodule+)
   (message "~&The folder \"~a\" doesn't exists, have you clone the submodule?"
            +slime-submodule+))
 
+#++
 (defcommand load-swank () ()
   (load-swank-from +slime-submodule+))
 
@@ -90,6 +82,7 @@
       (message "Swank server already running.")
       (%swank-create-server port)))
 
+#++
 (defcommand swank
     () ()
   "Starts a swank server on port 4005 and notifies the user."

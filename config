@@ -141,6 +141,11 @@
 (defcommand steam-run-or-raise () ()
             (run-or-raise "flatpak run com.valvesoftware.Steam" '(:class "Steam")))
 
+(defcommand quick () ()
+  (run-shell-command "myc M-x"))
+
+(define-key *root-map* (kbd "q") "quick")
+
 
 ;;; DWIM scripts
 

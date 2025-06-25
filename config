@@ -128,6 +128,7 @@
 (defapplication nautilus :bind (:top "s-E") :type new)
 
 ;; (defapplication teams :class "teams")
+(define-key *root-map* (kbd "ESC") "teams-run-or-raise")
 
 (defapplication keepassxc
   :bind (:root "k"))

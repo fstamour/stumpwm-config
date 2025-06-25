@@ -142,7 +142,7 @@
             (run-or-raise "flatpak run com.valvesoftware.Steam" '(:class "Steam")))
 
 (defcommand quick () ()
-  (run-shell-command "myc M-x"))
+  (run-shell-command "~/bin/myc quick"))
 
 (define-key *root-map* (kbd "q") "quick")
 

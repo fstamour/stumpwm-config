@@ -107,11 +107,12 @@ were "triggered" because of an invocation of "run-or-raise".
   ;; N.B. old is nil when the previous window was killed
   (declare (ignorable old))
   (format *the-current-trace-output* "~&on focus - new: ~a old: ~a" new old)
-  (setf *focus-history* (delete new *focus-history* :count 1))
-  (push new *focus-history*)
-  (unless *inside-my-run-or-raise-p*
-    (setf *last-criteria* nil
-          *cycle* nil)))
+  (unless (eq new (car *focus-history*))
+    (setf *focus-history* (delete new *focus-history* :count 1))
+    (push new *focus-history*)
+    (unless *inside-my-run-or-raise-p*
+      (setf *last-criteria* nil
+            *cycle* nil))))
 
 (defun on-destroy-window (win)
   (format *the-current-trace-output* "~&on destroy BEFORE~%  win: ~a ~%  history: ~a ~%  cycle: ~a" win *focus-history* *cycle*)

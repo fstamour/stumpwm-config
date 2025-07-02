@@ -6,7 +6,9 @@
   (remove-if-not
    (lambda (w)
      (and
-      (stumpwm::classed-p w "Chromium-browser")
+      (or
+       (stumpwm::classed-p w "Chromium")
+       (stumpwm::classed-p w "Chromium-browser"))
       (stumpwm::title-re-p w "^Microsoft Teams - .*")))
    (stumpwm::list-windows :screen)))
 
@@ -16,7 +18,7 @@
 
 (defcommand run-microsoft-teams () ()
   "Open a new Microsoft Teams chromium app."
-  (run-commands "exec chromium --app-id=cifhbcnohmdccbgoicgdjpfamggdegmo"))
+  (run-commands "exec chromium-browser --app-id=cifhbcnohmdccbgoicgdjpfamggdegmo"))
 
 (defcommand teams-run-or-raise () ()
   "Start teams or switch to it if already running."

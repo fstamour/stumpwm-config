@@ -61,7 +61,7 @@
 (setf *run-or-raise-all-screens* nil)
 
 ;; Stop stealing my damn focus!
-(setf *deny-raise-requests* t)
+(setf *deny-raise-request* t)
 ;; see also *suppress-deny-messages* and *deny-map-request*
 
 ;; TODO (push -new? '(:class "emacs") stumpwm:*deny-raise-request*)

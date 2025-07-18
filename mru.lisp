@@ -1,3 +1,6 @@
+;;; to see the logs:
+;;; journalctl --since -1h
+
 
 (in-package #:stumpwmrc)
 
@@ -72,12 +75,14 @@ were "triggered" because of an invocation of "run-or-raise".
   "Print a cycle, showing its current index and the whole list."
   (print-unreadable-object
       (cycle stream :type t :identity nil)
-    (format stream "~s ~s"
-            (index cycle)
+    (format stream "~s/~s ~s"
+            (index cycle) (length (elements cycle))
             (elements cycle))))
 
 
 ;;; Dynamic variables
+
+(defvar *mru-lock* (bt2:make-recursive-lock :name "mru"))
 
 (defvar *focus-history* ()
   "The list of _all_ windows, the most-recently focused first.")
@@ -106,25 +111,94 @@ were "triggered" because of an invocation of "run-or-raise".
 (defun on-focus-window (new old)
   ;; N.B. old is nil when the previous window was killed
   (declare (ignorable old))
-  (format *the-current-trace-output* "~&on focus - new: ~a old: ~a" new old)
-  (unless (eq new (car *focus-history*))
-    (setf *focus-history* (delete new *focus-history* :count 1))
-    (push new *focus-history*)
-    (unless *inside-my-run-or-raise-p*
-      (setf *last-criteria* nil
-            *cycle* nil))))
+  #++
+  (message "hey ~s~%~S" (stumpwm::other-hidden-window (current-group))
+           (let ((group (current-group)))
+             (mapcar (lambda (w)
+                       (eq
+                        (stumpwm::frame-window (stumpwm::window-frame w))
+                        w))
+                     (stumpwm::only-tile-windows (group-windows group)))))
+  (bt2:with-recursive-lock-held (*mru-lock*)
+    (format *the-current-trace-output* "~&on focus - new: ~a old: ~a~%  actual focus: ~s~%" new old (screen-focus (current-screen)))
+    (unless (eq new (car *focus-history*))
+      (setf *focus-history* (delete new *focus-history* :count 1))
+      (push new *focus-history*)
+      (unless *inside-my-run-or-raise-p*
+        (setf *last-criteria* nil
+              *cycle* nil)))))
 
 (defun on-destroy-window (win)
-  (format *the-current-trace-output* "~&on destroy BEFORE~%  win: ~a ~%  history: ~a ~%  cycle: ~a" win *focus-history* *cycle*)
-  (setf *focus-history* (delete win *focus-history*))
-  (when *cycle*
-    (setf (elements *cycle*) (delete win (elements *cycle*)))
-    (when (cycle-empty-p *cycle*)
-      (setf *cycle* nil)))
-  (format *the-current-trace-output* "~&on destroy AFTER~%  win: ~a ~%  history: ~a ~%  cycle: ~a" win *focus-history* *cycle*))
+  (bt2:with-recursive-lock-held (*mru-lock*)
+    (format *the-current-trace-output* "~&on destroy BEFORE~%  (window-state win): ~s~% win: ~a ~%  history: ~a ~%  cycle: ~a~%"
+            (window-state win)  ;; 0 == +withdrawn-state+
+            win *focus-history* *cycle*)
+    (setf *focus-history* (delete win *focus-history*))
+    (when *cycle*
+      (setf (elements *cycle*) (delete win (elements *cycle*)))
+      (when (cycle-empty-p *cycle*)
+        (setf *cycle* nil)))
+    (format *the-current-trace-output* "~&on destroy AFTER~%  win: ~a ~%  history: ~a ~%  cycle: ~a~%" win *focus-history* *cycle*)))
 
 (add-hook *focus-window-hook* 'on-focus-window)
 (add-hook *destroy-window-hook* 'on-destroy-window)
+
+;; (remove-hook *focus-window-hook* 'on-focus-window)
+;; (remove-hook *destroy-window-hook* 'on-destroy-window)
+
+
+#|
+
+Maybe it's "pull-hidden-other" the issue...
+
+|#
+
+#++
+(untrace
+ pull-hidden-other
+ stumpwm::pull-window
+ stumpwm::pull-other-hidden-window
+ stumpwm::other-hidden-window)
+
+;; stumpwm::other-hidden-window
+#++
+(let ((group (current-group)))
+  (mapcar (lambda (w)
+            (eq
+             (stumpwm::frame-window (stumpwm::window-frame w))
+             w))
+          (stumpwm::only-tile-windows (group-windows group))))
+
+#++
+(let ((group (current-group)))
+  (stumpwm::only-tile-windows (group-windows group)))
+
+
+
+#++
+(defun dummy-hook-handler (name)
+  (lambda (&rest args)
+    (format *the-current-trace-output*
+            "~&dummy-hook-handler ~a ~S~%" name args)))
+
+;; (add-hook *place-window-hook* (dummy-hook-handler '*place-window-hook*))
+;; (remove-hook *place-window-hook* (car *place-window-hook*))
+
+#++ ;; list the hooks:
+(map 'nil (lambda (sym) (format t "~&~A ~S" sym (documentation sym 'variable))) (apropos-list 'hook* 'stumpwm t))
+
+#++
+(dolist (sym '(*focus-frame-hook* *focus-group-hook*
+               *new-window-hook* *new-frame-hook* *new-head-hook*
+               *selection-notify-hook*
+               *top-level-error-hook*
+               *urgent-window-hook*))
+  (add-hook (symbol-value sym) (dummy-hook-handler sym))
+  ;; (remove-hook (symbol-value sym) (car (symbol-value sym)))
+  )
+
+
+;; STUMPWM:*TOP-LEVEL-ERROR-HOOK*
 
 
 ;;; Putting it all together
@@ -136,33 +210,37 @@ were "triggered" because of an invocation of "run-or-raise".
                           (cycle *cycle*)
                           (criteria (list cmd props)))
   (let ((*inside-my-run-or-raise-p* t))
-    (if (and (not (cycle-empty-p cycle))
-             (equal criteria *last-criteria*))
-        (progn
-          (cycle-next cycle)
-          ;; TODO make sure that all matching windows are in the cycle
-          ;; TODO I should use "matches" from below, and update the cycle accordingly
-          (focus-window (cycle-get-current cycle) t))
-        (let* ((current-window (current-window))
-               (matches (stumpwm::find-matching-windows props all-groups all-screens))
-               (matches-in-history (remove-if-not
-                                    #'(lambda (win) (member win matches))
-                                    (rest *focus-history*)))
-               ;; other-matches is list of matches "after" the current
-               ;; win, if current win matches. getting 2nd element means
-               ;; skipping over the current win, to cycle through matches
-               (other-matches (member current-window matches))
-               (win (if (> (length other-matches) 1)
-                        (second other-matches)
-                        (first (or matches-in-history matches)))))
-          (setf *last-criteria* criteria)
-          (when win
-            (setf *cycle* (make-instance 'cycle
-                                         :elements matches
-                                         :index (position win matches))))
-          (if win
-              (focus-window win t)
-              (run-or-raise cmd props all-groups all-screens))))))
+    (bt2:with-recursive-lock-held (*mru-lock*)
+      ;;
+
+      (if (and (not (cycle-empty-p cycle))
+               (equal criteria *last-criteria*))
+          (progn
+            (cycle-next cycle)
+            ;; TODO make sure that all matching windows are in the cycle
+            ;; TODO I should use "matches" from below, and update the cycle accordingly
+            (focus-window (cycle-get-current cycle) t))
+          (let* ((current-window (current-window))
+                 (matches (stumpwm::find-matching-windows props all-groups all-screens))
+                 (matches-in-history (remove-if-not
+                                      #'(lambda (win) (member win matches))
+                                      (rest *focus-history*)))
+                 ;; other-matches is list of matches "after" the current
+                 ;; win, if current win matches. getting 2nd element means
+                 ;; skipping over the current win, to cycle through matches
+                 (other-matches (member current-window matches))
+                 (win (if (> (length other-matches) 1)
+                          (second other-matches)
+                          (first (or matches-in-history matches)))))
+            (setf *last-criteria* criteria)
+            (when win
+              (setf *cycle* (make-instance 'cycle
+                                           :elements matches
+                                           :index (position win matches))))
+            (if win
+                ;; (focus-window win t)
+                (stumpwm::focus-all win)
+                (run-or-raise cmd props all-groups all-screens)))))))
 
 #++ ;; Select a window from the current cycle
 (defcommand wip () ()

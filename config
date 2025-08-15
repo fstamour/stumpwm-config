@@ -33,6 +33,22 @@
 ;; Use "Shift-menu" to send the prefix key (menu)
 (define-key *top-map* (menu-key "S-~A") "send-escape")
 
+;; Freeing the super key for more stuff
+(undefine-key *top-map* (kbd "s-h"))
+(undefine-key *top-map* (kbd "s-j"))
+(undefine-key *top-map* (kbd "s-k"))
+(undefine-key *top-map* (kbd "s-l"))
+(undefine-key *top-map* (kbd "s-Right"))
+(undefine-key *top-map* (kbd "s-Left"))
+(undefine-key *top-map* (kbd "s-Up"))
+(undefine-key *top-map* (kbd "s-Down"))
+(undefine-key *top-map* (kbd "s-l"))
+(undefine-key *top-map* (kbd "s-s"))
+(undefine-key *top-map* (kbd "s-v"))
+(undefine-key *top-map* (kbd "s-o"))
+(undefine-key *top-map* (kbd "s-n"))
+(undefine-key *top-map* (kbd "s-p"))
+
 ;; I don't want the default "Prefix-k" to close windows, it's too easy
 ;; to type by accident, and I want to use it for run-or-raise
 ;; keepassxc
@@ -98,17 +114,22 @@
   ;; TODO (:class (or "firefox" "Firefox"))
   (:class "Firefox")
   (:bind (:root "w"))
+  (:bind (:top "s-w"))
   (:type new :bind (:root "W"))
   (:type windowlist :bind (:root "M-w")))
 
 (defapplication* emacs
   (:bind (:root "e"))
+  (:bind (:top "s-e"))
   (:type new :bind (:root "E"))
   (:type windowlist :bind (:root "M-e")))
 
 (defapplication emacsclient :args "-c" :bind (:root "C-e"))
 
-(defapplication kitty :bind (:root "t") :class "kitty")
+(defapplication* kitty
+  (:bind (:root "t"))
+  (:bind (:top "s-t"))
+  (:class "kitty"))
 (defapplication kitty :bind (:root "T") :type new)
 
 ;; (defapplication anki :class "Anki" :bind (:root "a"))
@@ -127,8 +148,8 @@
 (defcommand code+shell () ()
   (run-commands "exec fish -c code"))
 
-(defapplication nautilus :bind (:top "s-e"))
-(defapplication nautilus :bind (:top "s-E") :type new)
+;; (defapplication nautilus :bind (:top "s-e"))
+;; (defapplication nautilus :bind (:top "s-E") :type new)
 
 ;; (defapplication teams :class "teams")
 (define-key *root-map* (kbd "ESC") "teams-run-or-raise")
@@ -171,36 +192,14 @@
     (run-commands "exec xterm -e nmtui"))
   (define-key *root-map* (kbd "c") "network-manager"))
 
-;; Lock screen
-(define-key *top-map* (kbd "s-l") "lock")
-
 ;; move windows around with the "super" key
 (define-key *top-map* (kbd "s-S-Right") "move-window right")
 (define-key *top-map* (kbd "s-S-Left") "move-window left")
 (define-key *top-map* (kbd "s-S-Up") "move-window up")
 (define-key *top-map* (kbd "s-S-Down") "move-window down")
 
-;; move the focus around with the "super" key
-(define-key *top-map* (kbd "s-h") "move-focus left")
-(define-key *top-map* (kbd "s-j") "move-focus down")
-(define-key *top-map* (kbd "s-k") "move-focus up")
-(define-key *top-map* (kbd "s-l") "move-focus right")
-(define-key *top-map* (kbd "s-Right") "move-focus right")
-(define-key *top-map* (kbd "s-Left") "move-focus left")
-(define-key *top-map* (kbd "s-Up") "move-focus up")
-(define-key *top-map* (kbd "s-Down") "move-focus down")
 
-
-;; split and "maximize" windows with the "super" key
-(define-key *top-map* (kbd "s-s") "vsplit")
-(define-key *top-map* (kbd "s-v") "hsplit")
-(define-key *top-map* (kbd "s-o") "only")
-
-;; pull windows with the "super" key
-(define-key *top-map* (kbd "s-n") "pull-hidden-next")
-(define-key *top-map* (kbd "s-p") "pull-hidden-previous")
 (define-key *top-map* (kbd "M-Tab") "pull-hidden-next")
-
 (define-key *top-map*
     (stumpwm::make-key :meta t :keysym (stumpwm::stumpwm-name->keysym "ISO_Left_Tab"))
   "pull-hidden-previous")

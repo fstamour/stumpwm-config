@@ -6,18 +6,16 @@
   (run-commands "exec xlock"))
 
 ;; Suspend
-#++ ;; suspend doesn't work...
 (defcommand suspend (confirmed-p)
-    ((:y-or-n "About to suspend (without locking). U sure? "))
+  ((:y-or-n "About to suspend (without locking). U sure? "))
   (when confirmed-p
     (if (systemctlp)
         (run-commands "exec systemctl suspend")
         (run-commands "exec loginctl suspend"))))
 
 ;; Lock & Suspend
-#++ ;; suspend doesn't work...
 (defcommand lock-suspend (confirmed-p)
-    ((:y-or-n "About to suspend (and lock). U sure? "))
+  ((:y-or-n "About to suspend (and lock). U sure? "))
   (when confirmed-p
     (run-commands
      "lock"

@@ -198,7 +198,8 @@
 (when (laptop-p)
   ;; Open an xterm window with the network-manager UI opened.
   (defcommand network-manager () ()
-    (run-commands "exec xterm -e nmtui"))
+    (run-commands ;; "exec xterm -e nmtui"
+                  "exec kitty --detach nmtui"))
   (define-key *root-map* (kbd "c") "network-manager"))
 
 ;; move windows around with the "super" key

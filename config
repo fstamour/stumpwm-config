@@ -28,7 +28,8 @@
       (kbd +menu-key+)))
 
 ;; Prefix key
-(set-prefix-key (menu-key))
+;; (set-prefix-key (menu-key))
+(set-prefix-key (kbd "s-z"))
 
 ;; Use "Shift-menu" to send the prefix key (menu)
 (define-key *top-map* (menu-key "S-~A") "send-escape")
@@ -118,21 +119,24 @@
   ;; TODO (:class (or "firefox" "Firefox"))
   (:class "Firefox")
   (:bind (:root "w"))
-  (:bind (:top "s-3"))
+  (:bind (:top "s-w"))
   (:type new :bind (:root "W"))
   (:type windowlist :bind (:root "M-w")))
 
 (defapplication* emacs
   (:bind (:root "e"))
-  (:bind (:top "s-1"))
-  (:type new :bind (:root "E"))
+  (:bind (:top "s-e"))
+  (:type new
+   :bind (:root "E")
+   ;; TODO this (multiple :bind) doens't work...
+   :bind (:top "s-E"))
   (:type windowlist :bind (:root "M-e")))
 
 (defapplication emacsclient :args "-c" :bind (:root "C-e"))
 
 (defapplication* kitty
   (:bind (:root "t"))
-  (:bind (:top "s-2"))
+  (:bind (:top "s-t"))
   (:class "kitty"))
 (defapplication kitty :bind (:root "T") :type new)
 
@@ -157,6 +161,7 @@
 
 ;; (defapplication teams :class "teams")
 (define-key *root-map* (kbd "ESC") "teams-run-or-raise")
+(define-key *top-map* (kbd "s-ESC") "teams-run-or-raise")
 
 (defapplication keepassxc
   :bind (:root "k"))
@@ -201,6 +206,12 @@
 (define-key *top-map* (kbd "s-S-Left") "move-window left")
 (define-key *top-map* (kbd "s-S-Up") "move-window up")
 (define-key *top-map* (kbd "s-S-Down") "move-window down")
+
+;; goto different groups using "super" key
+(loop :for i :from 1 :upto 10
+      :collect (define-key *top-map*
+                   (kbd (format nil "s-F~d" i))
+                 (format nil "gselect ~d" i)))
 
 (define-key *top-map* (kbd "M-Tab") "pull-hidden-next")
 (define-key *top-map*

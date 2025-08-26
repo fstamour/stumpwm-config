@@ -102,8 +102,11 @@ were "triggered" because of an invocation of "run-or-raise".
 
 ;; (print 'x *trace-output*)
 
+#++
 (trace on-focus-window on-destroy-window)
+#++
 (trace cycle-empty-p)
+#++
 (trace my-run-or-raise)
 
 (defparameter *the-current-trace-output* *trace-output*)
@@ -204,6 +207,14 @@ Maybe it's "pull-hidden-other" the issue...
 ;;; Putting it all together
 
 ;; TODO find a better name, it really is more of a "run-or-raise-of-cycle" ~ dwim
+
+;; 2025-08-25 disabling this becaues it really screws with stumpwm's
+;; internals somehow... I'll keep the hooks for now, to see if the
+;; issue comes from there.
+
+(fmakunbound 'my-run-or-raise)
+
+#++
 (defun my-run-or-raise (cmd props &optional (all-groups *run-or-raise-all-groups*)
                                     (all-screens *run-or-raise-all-screens*)
                         &aux

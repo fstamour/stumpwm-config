@@ -93,16 +93,20 @@
 (defun load-config* (&rest names)
   (mapcar #'load-config names))
 
-(load-config* "utils"
-              "mru"
-              "defapplication"
-              "audio"
-              "aesthetic"
-              "modeline"
-              "swank"
-              "rofi"
-              "login"
-              "teams")
+(load-config "utils")
+
+(when (find-package '#:bt2)
+  (load-config "mru"))
+
+(load-config*
+ "defapplication"
+ "audio"
+ "aesthetic"
+ "modeline"
+ "swank"
+ "rofi"
+ "login"
+ "teams")
 
 (when (laptop-p)
   (load-config "laptop"))

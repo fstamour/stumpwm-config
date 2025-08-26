@@ -32,7 +32,12 @@ other-args are passed to run-or-raise
   (let ((class (or class (string-capitalize name))))
     (ecase type
       (run-or-raise
-       `(my-run-or-raise
+       `(funcall
+         ;; in case 'my-run-or-raise can't be defined, which happened
+         ;; to me once because it uses bordeaux-threads and it wasn't
+         ;; loaded in the image
+         (or (and (fboundp 'my-run-or-raise) 'my-run-or-raise)
+                     'run-or-raise)
          ,(if args
               (downcase-cat name " " args)
               (downcase-cat name))

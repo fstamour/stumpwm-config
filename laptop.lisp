@@ -18,8 +18,8 @@
   (message "more darkness!")
   (run-shell-command "/run/current-system/profile/bin/xbacklight -dec 10"))
 
-(define-key *top-map* (kbd  "XF86MonBrightnessUp") "brightness-up")
-(define-key *top-map* (kbd  "XF86MonBrightnessDown") "brightness-down")
+(define-key *top-map* (kbd "XF86MonBrightnessUp") "brightness-up")
+(define-key *top-map* (kbd "XF86MonBrightnessDown") "brightness-down")
 
 
 ;; 2021-11-21 On my laptop, FreeBSD does not recognize the "brightness

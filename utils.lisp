@@ -50,7 +50,7 @@ function name like that."
   ;; Same algo as the one from alexandria
   (defun remove-from-plist (plist &rest keys)
     (loop :for (key value) :on plist :by #'cddr
-          :unless (member key keys :test #'eq )
+          :unless (member key keys :test #'eq)
             :collect key and collect (first rest))))
 
 
@@ -76,7 +76,7 @@ Trace could be useful too (especially that this only keeps the last invocation.0
 (defun sh (control-string &rest format-arguments)
   "Run a command in a shell, wait for it, return its output as a list of lines (strings)."
   (setf *last-sh* (list control-string format-arguments)) ; for debugging
-  (let* ((command (apply #' format nil control-string format-arguments))
+  (let* ((command (apply #'format nil control-string format-arguments))
          (result (split-string (run-shell-command command t))))
     (prog1 result
       ;; More bebugging stuff

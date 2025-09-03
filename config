@@ -210,10 +210,13 @@
 (define-key *top-map* (kbd "s-S-Down") "move-window down")
 
 ;; goto different groups using "super" key
-(loop :for i :from 1 :upto 10
-      :collect (define-key *top-map*
-                   (kbd (format nil "s-F~d" i))
-                 (format nil "gselect ~d" i)))
+(loop :for i :from 1 :upto 10 :do
+      (define-key *top-map*
+          (kbd (format nil "s-F~d" i))
+        (format nil "gselect ~d" i))
+      (define-key *top-map*
+          (kbd (format nil "s-S-F~d" i))
+        (format nil "gmove ~d" i)))
 
 (define-key *top-map* (kbd "M-Tab") "pull-hidden-next")
 (define-key *top-map*

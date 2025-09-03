@@ -163,8 +163,8 @@
 (define-key *root-map* (kbd "ESC") "teams-run-or-raise")
 (define-key *top-map* (kbd "s-ESC") "teams-run-or-raise")
 
-(defapplication keepassxc
-  :bind (:root "k"))
+(defapplication* keepassxc
+    (:bind (:root "k")))
 
 (defcommand zotero-run-or-raise () ()
   (run-or-raise "flatpak run org.zotero.Zotero" '(:class "Zotero")))

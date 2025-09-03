@@ -179,6 +179,7 @@
   (run-shell-command "~/bin/myc quick"))
 
 (define-key *root-map* (kbd "q") "quick")
+(define-key *top-map* (kbd "s-q") "quick")
 
 
 ;;; DWIM scripts

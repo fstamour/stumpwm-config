@@ -181,6 +181,11 @@
 (define-key *root-map* (kbd "q") "quick")
 (define-key *top-map* (kbd "s-q") "quick")
 
+(defcommand snippets () ()
+  (run-shell-command "~/bin/snippets"))
+
+(define-key *top-map* (kbd "s-s") "snippets")
+
 
 ;;; DWIM scripts
 

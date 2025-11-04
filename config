@@ -147,8 +147,15 @@
   (run-or-raise "QT_XCB_GL_INTEGRATION=none anki" '(:class "Anki")))
 (define-key *root-map* (kbd "a") "anki-run-or-raise")
 
+#++
 (defapplication* code
   (:bind (:root "v"))
+  (:type new :bind (:root "V"))
+  (:type windowlist :bind (:root "M-v")))
+
+(defapplication* codium
+  (:bind (:root "v"))
+  (:bind (:top "s-v"))
   (:type new :bind (:root "V"))
   (:type windowlist :bind (:root "M-v")))
 

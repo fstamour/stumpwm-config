@@ -140,6 +140,18 @@
   (:class "kitty"))
 (defapplication kitty :bind (:root "T") :type new)
 
+;; "f" for "file manager"
+(defapplication* thunar
+  (:bind (:root "f"))
+  (:type new
+   :bind (:root "F"))
+  (:type windowlist :bind (:root "M-f"))
+  (:bind (:top "s-f")))
+
+;; "o" for "office"
+(defapplication* libreoffice
+    (:bind (:top "s-o")))
+
 ;; (defapplication anki :class "Anki" :bind (:root "a"))
 ;;
 

@@ -16,11 +16,6 @@
             (new "Starts a new instance of ~a.")
             (windowlist "Select a window for a list of ~(~a~) windows."))
           name))
-#++
-(list
- (defapplication/docstring 'firefox 'run-or-raise)
- (defapplication/docstring 'firefox 'new)
- (defapplication/docstring 'firefox 'windowlist))
 
 ;; TODO defapplication/run (for use at runtime)
 

@@ -264,6 +264,11 @@
   (ignore-errors
    (run-commands "kitty")))
 
+(run-commands "emacs"
+              "kitty"
+              "firefox"
+              "emacs")
+
 
 ;;; Done!
 
